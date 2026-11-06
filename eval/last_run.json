@@ -1,0 +1,166 @@
+{
+  "ranAt": "2026-11-06T19:53:35.982Z",
+  "model": "openai/gpt-oss-120b",
+  "results": [
+    {
+      "goldenId": "G1",
+      "answer": "Skipping this month means the next instalment will not be taken, and the SIP will continue as normal from the following month. Your already bought units stay invested.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"skip\", \"next\""
+    },
+    {
+      "goldenId": "G2",
+      "answer": "Cancelling stops future instalments but the money already invested stays invested in the fund.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"invested\""
+    },
+    {
+      "goldenId": "G3",
+      "answer": "If an auto-debit fails, the fund house does not charge a penalty, but your bank may levy a fee for the failed debit. Several consecutive failures could lead the fund house to cancel the SIP.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"bank\""
+    },
+    {
+      "goldenId": "G4",
+      "answer": "In this demo you can pause a SIP for 1 to 3 months. After the pause period the SIP restarts automatically.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"3\""
+    },
+    {
+      "goldenId": "G5",
+      "answer": "Yes, after a pause the SIP restarts automatically on its own. In this demo you can pause for 1 to 3 months and it will resume at the same amount.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"restart\""
+    },
+    {
+      "goldenId": "G6",
+      "answer": "You can lower the SIP amount as long as it stays at or above the fund's minimum, which in this demo is ₹100.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"100\""
+    },
+    {
+      "goldenId": "G7",
+      "answer": "Yes, after cancelling a SIP you can start a new one later, which may require a new mandate. Your previously invested units stay invested.",
+      "type": "answer",
+      "status": "ok",
+      "passed": false,
+      "reason": "Missing: \"new SIP\""
+    },
+    {
+      "goldenId": "G8",
+      "answer": "Stopping a SIP does not create any tax; tax applies only when you redeem the units.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"redeem\""
+    },
+    {
+      "goldenId": "G9",
+      "answer": "Pausing a SIP does not trigger any exit load; exit load applies only on redemption.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"exit load\""
+    },
+    {
+      "goldenId": "G10",
+      "answer": "If you cancel the autopay (mandate) at your bank, the next SIP instalments will fail because the permission for automatic debits is removed. The SIP itself remains active, so you can either set up a new mandate or update the SIP in the app to avoid missed payments.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"fail\""
+    },
+    {
+      "goldenId": "G11",
+      "answer": "If you pause today, the request may take a few working days, so the instalment scheduled for tomorrow could still be processed.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"may\""
+    },
+    {
+      "goldenId": "G12",
+      "answer": "Yes, lowering the amount keeps the SIP active as long as the new amount is above the minimum (₹100 in this demo). The SIP continues with the reduced instalment while the previously bought units stay invested.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"active\""
+    },
+    {
+      "goldenId": "G13",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G14",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G15",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G16",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G17",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G18",
+      "answer": "I can only help with how this SIP and its options work.",
+      "type": "out_of_scope",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly said out of scope"
+    },
+    {
+      "goldenId": "G19",
+      "answer": "Skipping means the next instalment will not be taken and the SIP will continue as normal the following month. Your existing units stay invested and keep moving with the market. No penalty is charged for the skip in this demo.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"skip\""
+    },
+    {
+      "goldenId": "G20",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    }
+  ]
+}

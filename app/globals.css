@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/*
+  Colour palette (PM decision, 6 Nov): Groww green accent, no blue anywhere.
+  Use these names in classes, e.g. bg-accent, text-accent-text, bg-accent-tint.
+
+  Contrast rule (PM decision, 6 Nov): any button with white text uses
+  bg-button (#00a67e, about 3.1:1 with white) and text of at least 19px bold,
+  which counts as "large text" (14pt bold = 18.67px) and needs 3:1.
+  #00d09c is only for things with no text on them.
+*/
+@theme {
+  --color-accent: #00d09c; /* icons, bars, active tab underline, cursor: no text on it */
+  --color-button: #00a67e; /* buttons with white text (19px+ bold) */
+  --color-button-hover: #008f6c; /* darker on hover */
+  --color-button-disabled: #a6e3d3; /* button that can't be pressed yet */
+  --color-accent-tint: #e6faf5; /* light tinted backgrounds */
+  --color-accent-text: #00a67e; /* green text on white, so it stays readable */
+  --color-error: #c2410c; /* soft orange, only for error messages */
+
+  /*
+    Groww blue (PM decision, 7 Nov): ONLY on screens copied from the real Groww
+    app (Dashboard, For you, Watchlist, Redeem) and the shared app header and
+    bottom bar. Our SIP screens, GR-1 and the SIP card stay green.
+    Blue buttons with white text follow the same 19px bold rule.
+  */
+  --color-groww-blue: #5367ff; /* buttons, icons, active bottom-nav item */
+  --color-groww-blue-hover: #4254e8;
+  --color-groww-blue-tint: #eef1ff; /* light blue backgrounds */
+  --color-groww-blue-text: #4757e6; /* small blue text on white (readable) */
+}
+
+body {
+  background: #f2f3f5;
+  color: #111827;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/*
+  Smart Redeem intro sheet: placeholder cards slide slowly upwards in a loop
+  (the list is drawn twice, so moving it up by half loops seamlessly).
+  Still when the visitor's system asks for reduced motion.
+*/
+@keyframes smart-redeem-ticker {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.smart-redeem-ticker {
+  animation: smart-redeem-ticker 7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .smart-redeem-ticker {
+    animation: none;
+  }
+}
