@@ -23,6 +23,8 @@ export type TestLogRow = {
   compareOpened?: boolean;
   pauseMonths?: PauseMonths;
   newAmount?: number;
+  /** New SIP date (1–28) after "Change amount/date". */
+  newDay?: number;
   redeemAmount?: number;
   gr1Questions: number;
 };
@@ -80,6 +82,7 @@ export const CHOICE_LABELS: Record<FinalChoice, string> = {
   skip: "Skip",
   pause: "Pause",
   lower: "Lower",
+  date: "Change date",
   cancel: "Cancel",
 };
 
@@ -92,6 +95,7 @@ const CSV_COLUMNS = [
   "compare_opened",
   "pause_months",
   "new_amount",
+  "new_day",
   "redeem_amount",
   "gr1_questions",
 ] as const;
@@ -121,6 +125,7 @@ export function testLogToCsv(rows: TestLogRow[]): string {
       r.compareOpened === undefined ? undefined : r.compareOpened ? "yes" : "no",
       r.pauseMonths,
       r.newAmount,
+      r.newDay,
       r.redeemAmount,
       r.gr1Questions,
     ]

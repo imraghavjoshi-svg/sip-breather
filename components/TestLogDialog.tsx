@@ -12,6 +12,7 @@ import {
   type TestLogRow,
 } from "@/lib/testLog";
 import { DEVICES } from "@/lib/device";
+import { ordinal } from "@/lib/dates";
 
 export default function TestLogDialog({ onClose }: { onClose: () => void }) {
   const [rows, setRows] = useState<TestLogRow[]>(() => readTestLog());
@@ -98,6 +99,8 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
                     <td className="py-2 pr-4">
                       {r.pauseMonths ? `${r.pauseMonths} month${r.pauseMonths > 1 ? "s" : ""}` : ""}
                       {r.newAmount ? `New amount ₹${r.newAmount.toLocaleString("en-IN")}` : ""}
+                      {r.newAmount && r.newDay ? " · " : ""}
+                      {r.newDay ? `New date ${ordinal(r.newDay)}` : ""}
                       {r.redeemAmount ? `Redeemed ₹${r.redeemAmount.toLocaleString("en-IN")}` : ""}
                     </td>
                     <td className="py-2 pr-4">{r.gr1Questions}</td>

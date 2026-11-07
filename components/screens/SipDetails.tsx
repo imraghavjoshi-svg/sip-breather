@@ -47,7 +47,7 @@ export default function SipDetails() {
         <div className="px-4 pt-4">
           <p className="text-[26px] font-medium leading-tight text-ink">{formatRupees(view.monthlyAmount)}</p>
           <p className="mt-1 text-[13px] font-medium text-ink">
-            {cancelled ? "Cancelled" : `Monthly SIP on ${ordinal(sip.instalmentDay)}`}
+            {cancelled ? "Cancelled" : `Monthly SIP on ${ordinal(view.instalmentDay)}`}
           </p>
           <p className="mt-4 flex items-center gap-1.5 text-[15px] text-ink-2">
             <span className="truncate">{sip.fundName}</span>

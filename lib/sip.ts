@@ -1,6 +1,6 @@
 // Values worked out from a SIP (never stored, per data_model.md).
 
-import { formatDayMonth, instalmentAfterNext, nextInstalment, pauseRestart } from "./dates";
+import { dateChangeStart, formatDayMonth, instalmentAfterNext, nextInstalment, pauseRestart } from "./dates";
 import type { Decision, Sip } from "./types";
 
 /** invested = monthlyAmount × instalmentsDone */
@@ -26,6 +26,8 @@ export type SipView = {
   sip: Sip;
   status: SipStatus;
   monthlyAmount: number;
+  /** Day of the month instalments are taken (the new day after a date change). */
+  instalmentDay: number;
   invested: number;
   /** null once cancelled. */
   nextDate: Date | null;
@@ -38,6 +40,7 @@ export function sipView(sip: Sip, decision: Decision | null, today: Date): SipVi
     sip,
     status: "active",
     monthlyAmount: sip.monthlyAmount,
+    instalmentDay: sip.instalmentDay,
     invested: invested(sip),
     nextDate: nextInstalment(sip.instalmentDay, today),
     statusLabel: "Active",
@@ -59,7 +62,18 @@ export function sipView(sip: Sip, decision: Decision | null, today: Date): SipVi
       return { ...base, status: "paused", nextDate: restart, statusLabel: `Paused till ${formatDayMonth(restart)}` };
     }
     case "lower":
-      return { ...base, monthlyAmount: decision.newAmount ?? sip.monthlyAmount, statusLabel: "Amount lowered" };
+    case "date": {
+      const view = { ...base, monthlyAmount: decision.newAmount ?? sip.monthlyAmount };
+      if (!decision.newDay) return { ...view, statusLabel: "Amount lowered" };
+      // New date: the next instalment is the old one if it stays, else the first on the new day.
+      const { firstOnNewDay, oldInstalmentStays } = dateChangeStart(sip.instalmentDay, decision.newDay, today);
+      return {
+        ...view,
+        instalmentDay: decision.newDay,
+        nextDate: oldInstalmentStays ?? firstOnNewDay,
+        statusLabel: decision.option === "date" ? "Date changed" : "Amount and date changed",
+      };
+    }
     case "cancel":
       return { ...base, status: "cancelled", nextDate: null, statusLabel: "Cancelled" };
   }

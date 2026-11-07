@@ -9,11 +9,13 @@ import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import {
+  dateChangeStart,
   daysBefore,
   formatDayMonth,
   formatFullDate,
   instalmentAfterNext,
   nextInstalment,
+  ordinal,
   pauseRestart,
 } from "@/lib/dates";
 import { formatRupees, invested } from "@/lib/sip";
@@ -65,13 +67,37 @@ export default function DoneScreen() {
       );
       break;
     }
-    case "lower": {
+    case "lower":
+    case "date": {
       const amount = formatRupees(decision.newAmount ?? sip.monthlyAmount);
-      title = `Your SIP is now ${amount} a month`;
-      subtitle = "Your SIP stays active at the lower amount.";
+      if (!decision.newDay) {
+        title = `Your SIP is now ${amount} a month`;
+        subtitle = "Your SIP stays active at the lower amount.";
+        rows = (
+          <InfoRow Icon={CalendarDays} last>
+            From your next instalment on <b className="font-medium text-ink">{formatFullDate(next)}</b>.
+          </InfoRow>
+        );
+        break;
+      }
+      const { firstOnNewDay, oldInstalmentStays } = dateChangeStart(sip.instalmentDay, decision.newDay, today);
+      title =
+        decision.option === "date"
+          ? `Your SIP date is now the ${ordinal(decision.newDay)}`
+          : `Your SIP is now ${amount} on the ${ordinal(decision.newDay)}`;
+      subtitle = `From ${formatDayMonth(firstOnNewDay)}, every month.`;
       rows = (
         <InfoRow Icon={CalendarDays} last>
-          From your next instalment on <b className="font-medium text-ink">{formatFullDate(next)}</b>.
+          {oldInstalmentStays ? (
+            <>
+              Your next instalment on <b className="font-medium text-ink">{formatFullDate(oldInstalmentStays)}</b> stays as
+              it is. The new date starts from <b className="font-medium text-ink">{formatFullDate(firstOnNewDay)}</b>.
+            </>
+          ) : (
+            <>
+              Next instalment on <b className="font-medium text-ink">{formatFullDate(firstOnNewDay)}</b>.
+            </>
+          )}
         </InfoRow>
       );
       break;

@@ -63,7 +63,14 @@ export type DemoState = {
   tab: HomeTab;
   sipId: string;
   /** Choices being made on the current screens, before they are confirmed. */
-  draft: { pauseMonths: PauseMonths; amountInput: string; cancelReason?: CancelReason };
+  draft: {
+    pauseMonths: PauseMonths;
+    amountInput: string;
+    cancelReason?: CancelReason;
+    /** "Change amount/date": which segment is showing, and the new date picked (1–28). */
+    changeTab: "amount" | "date";
+    newDay?: number;
+  };
   /** Amount typed on the redeem keypad, e.g. "1000" or "250.5". */
   redeemInput: string;
   /** Set when the user confirms an option (one per demo run). */
@@ -83,7 +90,7 @@ export type DemoState = {
 export const DEFAULT_SIP_ID = "sip_flexi";
 /** Amount pre-filled when the "2. Redeem" step tab is used and nothing was typed (Flexi Cap). */
 const STEP_REDEEM_AMOUNT = "1000";
-const DEFAULT_DRAFT: DemoState["draft"] = { pauseMonths: 1, amountInput: "" };
+const DEFAULT_DRAFT: DemoState["draft"] = { pauseMonths: 1, amountInput: "", changeTab: "amount" };
 
 export const INITIAL_STATE: DemoState = {
   stack: ["home"],
@@ -115,6 +122,8 @@ export type DemoAction =
   | { type: "pickReason"; reason: CancelReason }
   | { type: "setPauseMonths"; months: PauseMonths }
   | { type: "setAmountInput"; value: string }
+  | { type: "setChangeTab"; tab: "amount" | "date" }
+  | { type: "setNewDay"; day: number | undefined }
   | { type: "setRedeemInput"; value: string }
   | { type: "confirm"; option: DecisionOption }
   | { type: "confirmSkip" }
@@ -217,12 +226,17 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, draft: { ...state.draft, pauseMonths: action.months } };
     case "setAmountInput":
       return { ...state, draft: { ...state.draft, amountInput: action.value } };
+    case "setChangeTab":
+      return { ...state, draft: { ...state.draft, changeTab: action.tab } };
+    case "setNewDay":
+      return { ...state, draft: { ...state.draft, newDay: action.day } };
     case "setRedeemInput":
       return { ...state, redeemInput: action.value };
     case "confirm": {
       const decision: Decision = { sipId: state.sipId, option: action.option };
       if (action.option === "pause") decision.pauseMonths = state.draft.pauseMonths;
       if (action.option === "lower") decision.newAmount = Number(state.draft.amountInput);
+      if ((action.option === "lower" || action.option === "date") && state.draft.newDay) decision.newDay = state.draft.newDay;
       if (state.draft.cancelReason) decision.cancelReason = state.draft.cancelReason;
       return { ...state, decision, stack: [...state.stack, "done"], gr1Open: false };
     }

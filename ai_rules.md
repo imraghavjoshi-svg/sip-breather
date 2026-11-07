@@ -20,7 +20,9 @@ General rules written for this demo. Exact limits differ by fund house and bank,
 | R10 | Restarting | After a pause the SIP restarts by itself. After cancelling, you start a new SIP, which may need a new mandate. |
 | R11 | Short-term returns | SIP returns move with the market and can be low or negative in the first months or years. Past returns don't tell you future returns. Withdrawing money and stopping a SIP are separate decisions. |
 
-R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). The "Not satisfied with returns" answer on the cancel reasons screen shows R11 word for word.
+| R12 | Changing the SIP date | You can change the date of your SIP. The change usually applies from the next cycle; if the new date is very close, the upcoming instalment may still be taken on the old date. |
+
+R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). R12 was added on 7 Nov 2026 with SIP date changing (same sources as every rule); the "Change amount/date" screen follows it: a new date less than 5 days away starts from the following month, and the next instalment on the old date stays. No full evaluation was re-run for R12 (PM decision); see eval/EVIDENCE_LOG.md for the spot checks. The "Not satisfied with returns" answer on the cancel reasons screen shows R11 word for word.
 
 Source for every rule: label "SIP basics: AMFI investor education", url `https://www.amfiindia.com/investor-corner`; and "Groww Help Centre", url `https://groww.in/help`.
 
@@ -28,7 +30,7 @@ Source for every rule: label "SIP basics: AMFI investor education", url `https:/
 
 1. The server sends the question to Groq (`openai/gpt-oss-120b`, temperature 0) with:
    - the user's SIP details (sample fund name, amount, instalment day, invested amount, goal)
-   - the rules R1 to R11
+   - the rules R1 to R12
    - this instruction: "You are GR-1. Answer only questions about how this SIP and its options work, using only the rules given. Reply in 2 to 4 short, plain sentences. Never name, compare or recommend any fund. Never say what the user should do with their money. Never predict returns or markets. Never use fear or urgency. If the question asks for advice, a recommendation or a prediction, set type to refuse_advice. If it is not about SIP mechanics, set type to out_of_scope. If the rules do not cover it, say you are not sure and suggest checking with the fund house or Groww support."
    - required output JSON: `{"type": "answer" | "refuse_advice" | "out_of_scope", "text": "...", "rule_ids": ["R1", ...]}`
 

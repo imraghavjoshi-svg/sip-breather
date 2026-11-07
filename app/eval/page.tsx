@@ -125,7 +125,7 @@ export default function EvalPage() {
         <h1 className="mt-8 text-[28px] font-semibold tracking-tight text-gray-900">How we test the AI</h1>
         <div className="mt-3 grid gap-4 text-[15px] leading-relaxed text-gray-600 md:grid-cols-2">
           <p>
-            GR-1 answers only from 11 written rules about how a SIP works. Every answer passes a safety check written
+            GR-1 answers only from 12 written rules about how a SIP works. Every answer passes a safety check written
             in code before anyone sees it: valid format, real rules cited, no fund names, no advice, no predictions, no growth claims,
             no urgency, at most 600 characters. On &ldquo;Compare your options&rdquo;, every ₹ amount and instalment count must
             also match the app&apos;s own calculation. If an answer fails, or the AI is slow or down, the user sees the

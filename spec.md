@@ -67,7 +67,11 @@ Header on the main tabs: logo icon, "Mutual Funds", search, GR-1 swirl icon (ope
     - Other reason to cancel → straight to cancel confirm.
     - "Continue to cancel" always has the same size and weight as the other options.
 12. **Pause**: choose 1, 2 or 3 months, see which instalments are skipped, restart date, "We'll remind you 3 days before, with all options again", "Your ₹3,000 already invested stays invested during the pause". Button "Confirm pause"; "Cancel instead" when reached from the cancel reasons.
-13. **Lower the amount**: big amount with keypad (whole rupees), "Currently ₹500", inline errors "Minimum required is ₹100" and "Enter less than ₹[current]". "Continue" → small confirm sheet → Done. "Cancel instead" when reached from the cancel reasons.
+13. **Change amount/date** (from "Change amount/date" on SIP details, the cancel reason "Want to change SIP amount/date", or Lower on Compare). Two segments at the top, classic Groww tab style: "Amount" and "Date".
+    - Amount: big amount with keypad (whole rupees), "Currently ₹500", inline errors "Minimum required is ₹100" and "Enter less than ₹[current]".
+    - Date: title "Choose your SIP date", subtitle "Currently the 5th of every month". A grid of dates 1–28 (7 per row), the current date outlined, the selected date filled green (tap the current date again to undo). Under the grid, a line that updates: "Next instalment: [date]" on the real calendar (the next time the new day comes round after today). If that is less than 5 days away, the change starts from the following month: "Your next instalment on 5 Dec stays as it is. The new date starts from [date]." (rule R12).
+    - Amount and date can both be changed in the same visit. "Continue" → small confirm sheet that shows every change ("Change SIP date to the 15th?" / "From [date], every month"; or "Change to ₹200 on the 20th?" with both rows; or "Lower to ₹200 a month?") / Confirm / Go back → Done ("Your SIP date is now the 15th", "Your SIP is now ₹200 on the 20th", or "Your SIP is now ₹200 a month"). SIP details ("Monthly SIP on 15th", Upcoming) and the SIPs tab (date tile, order) then show the new date and next instalment.
+    - "Cancel instead" when reached from the cancel reasons.
 14. **Cancel confirm** sheet: "You are cancelling ₹500 monthly SIP", "Your invested money stays invested. Only future instalments stop.", rows (Invested money: Stays invested / Last instalment / Restart: Start a new SIP anytime), primary "Cancel SIP", text button "Go back". No reason chips (the reason was already chosen).
 15. **Done**: green tick, message for the chosen option (skipped / paused till date / amount lowered / cancelled), fund, "Your ₹3,000 stays invested", button "Back to my SIP".
 
@@ -92,7 +96,7 @@ Header on the main tabs: logo icon, "Mutual Funds", search, GR-1 swirl icon (ope
     Works as described in ai_rules.md (safety check, sources, fallback, "Simulate AI failure").
 
 ### Test log (for user testing)
-One row is saved in this browser each time a run finishes: a Done screen, "Redemption placed", a skip confirmed on SIP details (which has no Done screen), or "Keep as is" on Compare. Columns: time, device, entry (redeem / cancel / sip details), cancel reason picked, final choice (redeem only / keep / skip / pause / lower / cancel), whether Compare was opened in that run (yes / no), pause months, new amount, redeem amount, GR-1 questions asked since the last Reset. A skip made on the YOUR SIP card is saved when the redemption finishes (final choice "skip" plus the redeem amount). localStorage, wrapped in try/catch so the app still works if storage is blocked. Rows saved before the classic redesign used other columns and are not shown. This is a deliberate, PM-approved exception to "no saving between visits"; it never leaves the browser.
+One row is saved in this browser each time a run finishes: a Done screen, "Redemption placed", a skip confirmed on SIP details (which has no Done screen), or "Keep as is" on Compare. Columns: time, device, entry (redeem / cancel / sip details), cancel reason picked, final choice (redeem only / keep / skip / pause / lower / change date / cancel; "lower" also covers amount and date changed together), whether Compare was opened in that run (yes / no), pause months, new amount, new date (shown in "Details" as "New date 15th"), redeem amount, GR-1 questions asked since the last Reset. A skip made on the YOUR SIP card is saved when the redemption finishes (final choice "skip" plus the redeem amount). localStorage, wrapped in try/catch so the app still works if storage is blocked. Rows saved before the classic redesign used other columns and are not shown. This is a deliberate, PM-approved exception to "no saving between visits"; it never leaves the browser.
 
 ## Fixes to apply versus the screenshots
 - Never show a real fund name, bank name, account number, email or phone number on any screen, even though they appear in the screenshots. Funds: "Sample Flexi Cap Fund Direct Growth" (₹500 on the 5th, 6 instalments) and "Sample Midcap Fund Direct Growth" (₹1,000 on the 10th, 4 instalments), plus other "Sample …" names on Explore and Watchlist. Bank: a plain bank icon and "Your bank ••••0000".
@@ -113,7 +117,6 @@ One row is saved in this browser each time a run finishes: a Done screen, "Redem
 - Recommending funds or predicting returns.
 - Real notifications (the pause reminder is shown, not sent).
 - Detecting cancellations made from a bank app.
-- Changing the SIP date (the "Change amount/date" screen changes the amount only).
 - Saving data between visits or across devices (except the browser-only test log).
 - Languages other than English.
 

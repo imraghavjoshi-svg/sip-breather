@@ -42,7 +42,7 @@ export function buildSystemPrompt(sipId: string, comparison?: Comparison): strin
 
 How to choose the type (check in this order):
 1. refuse_advice: the question asks for a judgement or a prediction. That includes what to do with money; which fund to pick, buy, sell, switch to or compare; whether to stop, keep or take money out; and any forecast about markets, prices, NAV, returns or the economy, for any time frame. It does not matter whether the question names a fund, this SIP or nothing at all.
-2. answer: the question is about how this SIP and its options work (skip, pause, lower, cancel, missed payments, mandates, exit load, tax on redemption, restarting, withdrawing money), or asks in general why SIP returns can be low or negative early on. Explaining that in general terms with the rules (R11) is not a prediction: say how SIP returns behave, never what they will do next.
+2. answer: the question is about how this SIP and its options work (skip, pause, lower, cancel, missed payments, mandates, exit load, tax on redemption, restarting, withdrawing money, changing the SIP date), or asks in general why SIP returns can be low or negative early on. Explaining that in general terms with the rules (R11) is not a prediction: say how SIP returns behave, never what they will do next.
 3. out_of_scope: the question asks for help with a different product or task, such as shares, IPOs, loans or insurance. Never use out_of_scope for a question that asks for a judgement or a prediction.
 If a question could be either refuse_advice or out_of_scope, choose refuse_advice.
 

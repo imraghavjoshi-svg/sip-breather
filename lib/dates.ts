@@ -127,3 +127,30 @@ export function ordinal(n: number): string {
   if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
   return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 }
+
+// ---------- Changing the SIP date ----------
+
+/** A new date less than this many days away starts from the following month (rule R12). */
+export const DATE_CHANGE_NOTICE_DAYS = 5;
+
+/**
+ * When a new SIP date takes effect. The first instalment on the new day is
+ * the next time that day comes round after today; if that is less than 5 days
+ * away, it moves to the following month and the next instalment on the old
+ * day stays as it is.
+ *   today 7 Nov 2026, old day 5: new 15th → first 15 Nov, nothing stays;
+ *   new 10th → 10 Nov is 3 days away, so 5 Dec stays and the new date starts 10 Dec.
+ */
+export function dateChangeStart(
+  oldDay: number,
+  newDay: number,
+  today: Date,
+): { firstOnNewDay: Date; oldInstalmentStays: Date | null } {
+  const soonest = nextInstalment(newDay, today);
+  const daysAway = Math.round((soonest.getTime() - startOfDay(today).getTime()) / 86_400_000);
+  if (daysAway >= DATE_CHANGE_NOTICE_DAYS) return { firstOnNewDay: soonest, oldInstalmentStays: null };
+  return {
+    firstOnNewDay: dayOfMonth(soonest, 1, newDay),
+    oldInstalmentStays: nextInstalment(oldDay, today),
+  };
+}

@@ -49,6 +49,7 @@ const RULE_KEYWORDS: Record<RuleId, string[]> = {
   R9: ["tax", "exit load", "load"],
   R10: ["restart", "start again", "again", "resume", "by itself", "later"],
   R11: ["returns", "return", "low", "negative", "first year", "withdraw", "withdrawing", "separate", "market"],
+  R12: ["change the date", "change my date", "change date", "new date", "different date", "move my sip", "sip date", "debit date"],
 };
 
 function escapeRegExp(s: string): string {

@@ -128,3 +128,10 @@ File: `history/2026-11-07_run6_full_v3_24of25.json` (also the current `last_run.
 | 4 | v1 | 19/20 | 0 | 0 | 0 | G7 |
 | 5 | v2 | 21/22 | 0 | 0 | 0 | G7 |
 | 6 | v3 | 24/25 | 0 | 0 | 0 | G7 |
+
+## Rule R12 "Changing the SIP date" (7 Nov 2026, no full re-run)
+- Added R12: "You can change the date of your SIP. The change usually applies from the next cycle; if the new date is very close, the upcoming instalment may still be taken on the old date." The prompt's list of "answer" topics now also includes "changing the SIP date".
+- PM decision: no full evaluation re-run for this change. Spot checks through `/api/ask`:
+  - "Can I change my SIP date to the 15th?" → answer, based on R12: "Yes, you can change the SIP date to the 15th. The change usually applies from the next cycle, though if the new date is very close, the upcoming instalment may still be taken on the old date."
+  - G11 "My instalment date is tomorrow. If I pause today, will it still be cut?" → still answered from R7, still mentions "may".
+- Offline: the fallback rule picker still matches all 15 answer-type golden questions to the right rule, and date questions now fall back to R12.

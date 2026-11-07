@@ -77,6 +77,13 @@ export const RULES: Rule[] = [
     text: "SIP returns move with the market and can be low or negative in the first months or years. Past returns don't tell you future returns. Withdrawing money and stopping a SIP are separate decisions.",
     sources: SOURCES,
   },
+  {
+    // Added with SIP date changing (7 Nov 2026).
+    id: "R12",
+    title: "Changing the SIP date",
+    text: "You can change the date of your SIP. The change usually applies from the next cycle; if the new date is very close, the upcoming instalment may still be taken on the old date.",
+    sources: SOURCES,
+  },
 ];
 
 export const RULE_IDS = RULES.map((r) => r.id);

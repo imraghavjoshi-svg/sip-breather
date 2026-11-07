@@ -139,6 +139,7 @@ function finishedRunRow(before: DemoState, action: DemoAction, device: DeviceKin
   if (entry === "cancel" && before.draft.cancelReason) row.cancelReason = before.draft.cancelReason;
   if (choice === "pause") row.pauseMonths = after.decision?.pauseMonths;
   if (choice === "lower") row.newAmount = after.decision?.newAmount;
+  if ((choice === "lower" || choice === "date") && after.decision?.newDay) row.newDay = after.decision.newDay;
   if (currentScreen(after) === "redeemDone") row.redeemAmount = Number(before.redeemInput);
   return row;
 }

@@ -20,7 +20,7 @@ Rule used: if a value can be worked out from other values, it is not stored.
 | goalName | string | no | "Bike" |
 | goalTarget | number | no | 60000 |
 
-Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress = invested / goalTarget; next instalment date = the next time instalmentDay comes round after today; last instalment date = the most recent instalmentDay before today; pause restart date = next date + pauseMonths.
+Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress = invested / goalTarget; after a date change, the next instalment is the first on the new day, or the old next instalment if the new day is less than 5 days away (R12); next instalment date = the next time instalmentDay comes round after today; last instalment date = the most recent instalmentDay before today; pause restart date = next date + pauseMonths.
 
 ### Rule (the facts GR-1 is allowed to use)
 | field | type | required |
@@ -30,7 +30,7 @@ Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress 
 | text | string | yes |
 | sources | {label: string, url: string}[] | yes |
 
-11 rules (R1 to R11; R11 "Short-term returns" was added with the classic redesign, 7 Nov 2026). Every rule has two sources: "AMFI investor education" (https://www.amfiindia.com/investor-corner) and "Groww Help Centre" (https://groww.in/help). Answers show them as one line: "Sources: AMFI investor education · Groww Help Centre".
+12 rules (R1 to R12; R11 "Short-term returns" was added with the classic redesign and R12 "Changing the SIP date" with date changing, both 7 Nov 2026). Every rule has two sources: "AMFI investor education" (https://www.amfiindia.com/investor-corner) and "Groww Help Centre" (https://groww.in/help). Answers show them as one line: "Sources: AMFI investor education · Groww Help Centre".
 
 Content: see ai_rules.md.
 
@@ -71,9 +71,10 @@ Cleared when a new redemption starts or on Reset. Dashboard holdings do not chan
 | field | type | required |
 |---|---|---|
 | sipId | string | yes |
-| option | "skip" \| "pause" \| "lower" \| "cancel" | yes |
+| option | "skip" \| "pause" \| "lower" \| "date" \| "cancel" | yes ("lower" = new amount, maybe with a new date; "date" = new date only) |
 | pauseMonths | 1 \| 2 \| 3 | only for pause |
 | newAmount | number | only for lower |
+| newDay | number (1–28) | for "date", and for "lower" when the date changed too |
 | cancelReason | "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other" | no (set when the option was reached from the cancel reasons) |
 
 A skip made on the YOUR SIP card or on SIP details is also a Decision (option "skip"); the screen then shows it in place.
@@ -127,10 +128,11 @@ A run finishes at a Done screen, at "Redemption placed", when a skip is confirme
 | device | "iphone" \| "pixel" \| "frameless" | yes |
 | entry | "redeem" \| "cancel" \| "sip_details" | yes (where the run started) |
 | cancelReason | "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other" | only when entry is "cancel" |
-| finalChoice | "redeem_only" \| "keep" \| "skip" \| "pause" \| "lower" \| "cancel" | yes ("keep" = "Keep as is" on Compare) |
+| finalChoice | "redeem_only" \| "keep" \| "skip" \| "pause" \| "lower" \| "date" \| "cancel" | yes ("keep" = "Keep as is" on Compare; "lower" also when the date changed too) |
 | compareOpened | boolean | yes (Compare was opened in this run; rows saved before Compare existed have none) |
 | pauseMonths | 1 \| 2 \| 3 | only for pause |
 | newAmount | number | only for lower |
+| newDay | number (1–28) | when the SIP date was changed |
 | redeemAmount | number | only when a redemption was placed |
 | gr1Questions | number | yes (since the last Reset) |
 
