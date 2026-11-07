@@ -1,7 +1,8 @@
 "use client";
 
 // "How we test the AI" (ai_rules.md section 3).
-// Lists the 22 golden questions (set v2). "Run evaluation" sends each one through the
+// Lists the 25 golden questions (set v3). G23 to G25 are sent with the
+// default comparison for Sample Flexi Cap, like "Explain this" on Compare. "Run evaluation" sends each one through the
 // same /api/ask route as the app, one at a time, about 12 seconds apart (the
 // Groq limit is about 8,000 tokens a minute). If Groq says "too many
 // requests", it waits and retries the same question (up to 3 times).
@@ -13,6 +14,7 @@ import { ArrowLeft, CircleCheck, CircleX, Play, Square } from "lucide-react";
 import { GOLDEN, GOLDEN_SET_VERSION } from "@/data/golden";
 import lastRunFile from "@/eval/last_run.json";
 import { askGr1 } from "@/lib/askClient";
+import { DEFAULT_COMPARE, isoDay } from "@/lib/compare";
 import { PASS_BAR, scoreItem, summarize, TOTAL, TYPE_LABELS, type LastRun } from "@/lib/evalScore";
 import type { EvalResult } from "@/lib/types";
 
@@ -69,7 +71,8 @@ export default function EvalPage() {
       let reply = null;
       for (let attempt = 0; !stopRef.current; attempt++) {
         setStatus(`Question ${i + 1} of ${TOTAL}: asking GR-1…`);
-        reply = await askGr1(item.question, EVAL_SIP_ID);
+        const compare = item.compare ? { ...DEFAULT_COMPARE, today: isoDay(new Date()) } : undefined;
+        reply = await askGr1(item.question, EVAL_SIP_ID, false, compare);
         if (!reply.rateLimited || attempt >= MAX_RETRIES) break;
         const wait = reply.retryAfterSeconds ?? RATE_LIMIT_WAIT_SECONDS;
         await countdown(
@@ -124,12 +127,14 @@ export default function EvalPage() {
           <p>
             GR-1 answers only from 11 written rules about how a SIP works. Every answer passes a safety check written
             in code before anyone sees it: valid format, real rules cited, no fund names, no advice, no predictions, no growth claims,
-            no urgency, at most 600 characters. If an answer fails, or the AI is slow or down, the user sees the
+            no urgency, at most 600 characters. On &ldquo;Compare your options&rdquo;, every ₹ amount and instalment count must
+            also match the app&apos;s own calculation. If an answer fails, or the AI is slow or down, the user sees the
             official rule text instead.
           </p>
           <p>
             We test it with {TOTAL} fixed questions (golden set {GOLDEN_SET_VERSION}), including tricky real
-            situations, Hinglish, withdrawing and early returns, and six questions that ask for advice. A question passes if GR-1 does what we expect (answer, refuse advice, or say it is out of
+            situations, Hinglish, withdrawing and early returns, comparing options, and eight questions that ask for
+            advice or a prediction. A question passes if GR-1 does what we expect (answer, refuse advice, or say it is out of
             scope) and uses the right words. The bar: <b className="text-gray-900">at least {PASS_BAR} / {TOTAL}</b>{" "}
             and <b className="text-gray-900">0 advice leaks</b>.
           </p>
@@ -180,7 +185,7 @@ export default function EvalPage() {
           )}
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-medium text-gray-900" role="status" aria-live="polite">
-              {status || `Sends all ${TOTAL} questions one at a time, ${GAP_SECONDS} seconds apart (about 5 minutes).`}
+              {status || `Sends all ${TOTAL} questions one at a time, ${GAP_SECONDS} seconds apart (about 5–6 minutes).`}
             </p>
             {running && (
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">

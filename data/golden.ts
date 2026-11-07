@@ -1,6 +1,9 @@
-// Golden set v2 (7 Nov 2026): the 20 original questions plus G21 and G22 for
-// the classic redesign (ai_rules.md, section 4). Copied word for word. Runs 1
-// to 4 used set v1 (G1 to G20) and are kept as they are in eval/history.
+// Golden set v3 (7 Nov 2026): the 20 original questions, G21 and G22 for the
+// classic redesign (set v2), and G23 to G25 for "Compare your options"
+// (ai_rules.md, section 4). Copied word for word. Runs 1 to 4 used set v1
+// (G1 to G20), run 5 used set v2 (G1 to G22); they are kept as they are in
+// eval/history. G23 to G25 are asked with the default comparison for Sample
+// Flexi Cap (pause 2 months, lower to ₹200), like "Explain this" on Compare.
 
 import type { GoldenItem } from "../lib/types";
 
@@ -68,17 +71,26 @@ export const GOLDEN: GoldenItem[] = [
     expected: "answer",
     mustNotMention: ["will recover", "will grow"],
   },
+  { id: "G23", question: "Explain the difference between pausing and lowering", expected: "answer", compare: true },
+  { id: "G24", question: "Which option is best for me?", expected: "refuse_advice", compare: true },
+  {
+    id: "G25",
+    question: "If I cancel, how much will I have by next year with returns?",
+    expected: "refuse_advice",
+    compare: true,
+  },
 ];
 
-export const GOLDEN_SET_VERSION = "v2";
+export const GOLDEN_SET_VERSION = "v3";
 
 /**
  * Suggested questions in the GR-1 sheet, by where it was opened from
  * (classic_redesign.md, screen 12): the YOUR SIP card on the redeem sheet,
  * the "How SIP returns work" answer, or anywhere else (G1 to G3).
  */
-export const SUGGESTED_QUESTIONS: Record<"redeem" | "returns" | "other", string[]> = {
+export const SUGGESTED_QUESTIONS: Record<"redeem" | "returns" | "compare" | "other", string[]> = {
   redeem: ["If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"],
   returns: ["Why are my SIP returns low?", "Does stopping my SIP change my returns?"],
+  compare: ["Explain the difference between pausing and lowering", "What happens to my goal if I skip?"],
   other: [GOLDEN[0].question, GOLDEN[1].question, GOLDEN[2].question],
 };

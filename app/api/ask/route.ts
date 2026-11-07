@@ -5,7 +5,10 @@
 
 import { getRule } from "@/data/rules";
 import { SIPS } from "@/data/sips";
+import { compareOptions, comparisonFallbackText, findUnmatchedNumber, lowerAmountIsValid, type Comparison } from "@/lib/compare";
+import { getSip } from "@/data/sips";
 import { matchRule, OUT_OF_SCOPE_TEXT, REFUSE_ADVICE_TEXT, type AskResponse } from "@/lib/gr1";
+import type { PauseMonths } from "@/lib/types";
 import { callGroq } from "@/lib/server/groq";
 import { takeAskSlot, visitorKey } from "@/lib/server/rateLimit";
 import { checkModelOutput } from "@/lib/server/safety";
@@ -18,12 +21,45 @@ function fallback(question: string, reason: string, extra: Partial<AskResponse> 
   return { type: null, status: "fallback", text: getRule(id).text, ruleIds: [id], check: { passed: false, reason }, ...extra };
 }
 
-function log(question: string, reply: AskResponse) {
+/** The safe fallback on "Compare your options": the calculated values in a fixed sentence. */
+function compareFallback(c: Comparison, reason: string, extra: Partial<AskResponse> = {}): AskResponse {
+  return {
+    type: null,
+    status: "fallback",
+    text: comparisonFallbackText(c),
+    ruleIds: [],
+    compareFallback: true,
+    check: { passed: false, reason },
+    ...extra,
+  };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Rebuilds the comparison on the server from the SIP data and the user's two
+ * choices. Only those choices and the browser's date come from the browser
+ * (the date is accepted only within 2 days of the server's). null = not valid.
+ */
+function comparisonFrom(raw: unknown, sipId: string): Comparison | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const { pauseMonths, lowerAmount, today } = raw as Record<string, unknown>;
+  if (pauseMonths !== 1 && pauseMonths !== 2 && pauseMonths !== 3) return null;
+  if (typeof lowerAmount !== "number" || !lowerAmountIsValid(getSip(sipId), lowerAmount)) return null;
+  if (typeof today !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(today)) return null;
+  const [y, m, d] = today.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  if (Number.isNaN(date.getTime()) || Math.abs(date.getTime() - Date.now()) > 2 * DAY_MS) return null;
+  return compareOptions(sipId, { pauseMonths: pauseMonths as PauseMonths, lowerAmount }, date);
+}
+
+function log(question: string, reply: AskResponse, compare = false) {
   // No key, no personal data: just what the evaluation needs.
   console.log(
     "[ask]",
     JSON.stringify({
       question,
+      compare,
       type: reply.type ?? "fallback",
       passed: reply.check?.passed ?? false,
       reason: reply.check?.reason ?? "",
@@ -58,7 +94,8 @@ export async function POST(request: Request) {
     question: rawQuestion,
     sipId: rawSipId,
     simulateFailure,
-  } = (body ?? {}) as { question?: unknown; sipId?: unknown; simulateFailure?: unknown };
+    compare: rawCompare,
+  } = (body ?? {}) as { question?: unknown; sipId?: unknown; simulateFailure?: unknown; compare?: unknown };
   const question = typeof rawQuestion === "string" ? rawQuestion.trim() : "";
   if (!question) return Response.json({ error: "question is required" }, { status: 400 });
   if (question.length > MAX_QUESTION_LENGTH) {
@@ -69,25 +106,41 @@ export async function POST(request: Request) {
   }
   const sipId = SIPS.some((s) => s.id === rawSipId) ? (rawSipId as string) : SIPS[0].id;
 
+  // Opened from "Compare your options": recalculate the five results here.
+  const comparison = rawCompare === undefined ? null : comparisonFrom(rawCompare, sipId);
+  if (rawCompare !== undefined && !comparison) {
+    return Response.json({ error: "compare must be {pauseMonths 1-3, lowerAmount, today YYYY-MM-DD}" }, { status: 400 });
+  }
+  // On Compare, every safe fallback is the calculated comparison.
+  const safeFallback = (reason: string, extra: Partial<AskResponse> = {}) =>
+    comparison ? compareFallback(comparison, reason, extra) : fallback(question, reason, extra);
+
   let reply: AskResponse;
 
   // Reviewer switch "Simulate AI failure": skip Groq and show the safe fallback.
   if (simulateFailure === true) {
-    reply = fallback(question, "AI failure simulated", { simulated: true });
-    log(question, reply);
+    reply = safeFallback("AI failure simulated", { simulated: true });
+    log(question, reply, Boolean(comparison));
     return Response.json(reply);
   }
 
-  const groq = await callGroq(question, sipId);
+  const groq = await callGroq(question, sipId, comparison ?? undefined);
 
   if (!groq.ok) {
     reply = groq.rateLimited
-      ? fallback(question, groq.reason, { rateLimited: true, retryAfterSeconds: groq.retryAfterSeconds })
-      : fallback(question, groq.reason);
+      ? safeFallback(groq.reason, { rateLimited: true, retryAfterSeconds: groq.retryAfterSeconds })
+      : safeFallback(groq.reason);
   } else {
     const result = checkModelOutput(groq.content);
+    // New check on Compare: every ₹ amount and instalment count must match the calculation.
+    const unmatched =
+      result.passed && result.reply.type === "answer" && comparison
+        ? findUnmatchedNumber(result.reply.text, comparison)
+        : null;
     if (!result.passed) {
-      reply = fallback(question, result.reason);
+      reply = safeFallback(result.reason);
+    } else if (unmatched) {
+      reply = safeFallback(`Number not in the calculation: ${unmatched}`);
     } else if (result.reply.type === "refuse_advice") {
       reply = { type: "refuse_advice", status: "refused", text: REFUSE_ADVICE_TEXT, ruleIds: [], check: { passed: true, reason: "" } };
     } else if (result.reply.type === "out_of_scope") {
@@ -103,6 +156,6 @@ export async function POST(request: Request) {
     }
   }
 
-  log(question, reply);
+  log(question, reply, Boolean(comparison));
   return Response.json(reply);
 }

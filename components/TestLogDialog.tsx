@@ -59,7 +59,7 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
               Test log
             </h2>
             <p className="text-[13px] text-gray-500">
-              One row each time a run finishes: a Done screen, &ldquo;Redemption placed&rdquo;, or a skip on SIP details. Saved only in this browser.
+              One row each time a run finishes: a Done screen, &ldquo;Redemption placed&rdquo;, a skip on SIP details, or &ldquo;Keep as is&rdquo; on Compare. Saved only in this browser.
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 hover:bg-gray-100">
@@ -81,6 +81,7 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
                   <th className="py-2 pr-4 font-medium">Entry</th>
                   <th className="py-2 pr-4 font-medium">Cancel reason</th>
                   <th className="py-2 pr-4 font-medium">Final choice</th>
+                  <th className="py-2 pr-4 font-medium">Compare opened</th>
                   <th className="py-2 pr-4 font-medium">Details</th>
                   <th className="py-2 pr-4 font-medium">GR-1 questions</th>
                 </tr>
@@ -93,6 +94,7 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
                     <td className="py-2 pr-4">{ENTRY_LABELS[r.entry] ?? r.entry}</td>
                     <td className="py-2 pr-4">{r.cancelReason ? REASON_LABELS[r.cancelReason] : ""}</td>
                     <td className="py-2 pr-4">{CHOICE_LABELS[r.finalChoice] ?? r.finalChoice}</td>
+                    <td className="py-2 pr-4">{r.compareOpened === undefined ? "" : r.compareOpened ? "Yes" : "No"}</td>
                     <td className="py-2 pr-4">
                       {r.pauseMonths ? `${r.pauseMonths} month${r.pauseMonths > 1 ? "s" : ""}` : ""}
                       {r.newAmount ? `New amount ₹${r.newAmount.toLocaleString("en-IN")}` : ""}

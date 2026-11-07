@@ -4,6 +4,7 @@
 
 import { RULES } from "../../data/rules";
 import { getSip } from "../../data/sips";
+import { comparisonForPrompt, type Comparison } from "../compare";
 import { formatRupees, invested } from "../sip";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
@@ -14,7 +15,19 @@ const TIMEOUT_MS = 8000;
 const INSTRUCTION =
   "You are GR-1. Answer only questions about how this SIP and its options work, using only the rules given. Reply in 2 to 4 short, plain sentences. Never name, compare or recommend any fund. Never say what the user should do with their money. Never predict returns or markets. Never use fear or urgency. If the question asks for advice, a recommendation or a prediction, set type to refuse_advice. If it is not about SIP mechanics, set type to out_of_scope. If the rules do not cover it, say you are not sure and suggest checking with the fund house or Groww support.";
 
-export function buildSystemPrompt(sipId: string): string {
+/**
+ * Added when GR-1 was opened from "Compare your options". The numbers are
+ * recalculated on the server (lib/compare.ts), never taken from the browser.
+ */
+function comparisonSection(c: Comparison): string {
+  return `
+
+The user is looking at "Compare your options" for this SIP. The app calculated these results:
+${comparisonForPrompt(c)}
+If the question asks to explain or compare these options, set type to answer and explain the differences in 2 to 4 plain sentences. Use only the numbers in this list and copy every ₹ amount and every count of instalments exactly as written; do not work out new totals or differences. Never say which option to choose, which is better, or rank them. These are only the money the user puts in: never mention returns, interest or what the money will be worth. Cite the rules that describe each option (R2 skip, R3 pause, R4 lower, R5 cancel, R1 invested money).`;
+}
+
+export function buildSystemPrompt(sipId: string, comparison?: Comparison): string {
   const sip = getSip(sipId);
   const sipDetails = [
     `Fund: ${sip.fundName}`,
@@ -43,7 +56,7 @@ ${rules}
 
 Reply with JSON only, no other text, in exactly this shape:
 {"type": "answer" | "refuse_advice" | "out_of_scope", "text": "...", "rule_ids": ["R1", ...]}
-For "answer", rule_ids lists every rule you used. For "refuse_advice" and "out_of_scope", rule_ids is [].`;
+For "answer", rule_ids lists every rule you used. For "refuse_advice" and "out_of_scope", rule_ids is [].${comparison ? comparisonSection(comparison) : ""}`;
 }
 
 export type GroqResult =
@@ -51,7 +64,7 @@ export type GroqResult =
   | { ok: false; rateLimited: true; retryAfterSeconds: number | null; reason: string }
   | { ok: false; rateLimited: false; reason: string };
 
-export async function callGroq(question: string, sipId: string): Promise<GroqResult> {
+export async function callGroq(question: string, sipId: string, comparison?: Comparison): Promise<GroqResult> {
   const key = process.env.GROQ_API_KEY?.trim();
   if (!key) return { ok: false, rateLimited: false, reason: "GROQ_API_KEY is not set on the server" };
 
@@ -68,7 +81,7 @@ export async function callGroq(question: string, sipId: string): Promise<GroqRes
         max_completion_tokens: 1024,
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: buildSystemPrompt(sipId) },
+          { role: "system", content: buildSystemPrompt(sipId, comparison) },
           { role: "user", content: question },
         ],
       }),

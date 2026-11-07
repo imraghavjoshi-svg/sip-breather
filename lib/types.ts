@@ -4,7 +4,7 @@ export type DeviceKind = "iphone" | "pixel" | "frameless";
 export type Zoom = 1 | 0.9 | 0.8;
 
 /** The four step tabs in the desktop toolbar. */
-export type StepTab = "dashboard" | "redeem" | "reasons" | "answer";
+export type StepTab = "dashboard" | "redeem" | "reasons" | "answer" | "compare";
 
 /** The four top tabs inside the app. */
 export type HomeTab = "explore" | "dashboard" | "sips" | "watchlist";
@@ -13,7 +13,7 @@ export type HomeTab = "explore" | "dashboard" | "sips" | "watchlist";
 export type Entry = "redeem" | "cancel" | "sip_details";
 
 /** What the run ended with (for the test log). */
-export type FinalChoice = "redeem_only" | "skip" | "pause" | "lower" | "cancel";
+export type FinalChoice = "redeem_only" | "keep" | "skip" | "pause" | "lower" | "cancel";
 
 // ---------- Seed data ----------
 
@@ -59,6 +59,8 @@ export type GoldenItem = {
   expected: ExpectedType;
   mustMention?: string[];
   mustNotMention?: string[];
+  /** Asked from "Compare your options" (sent with the default comparison; numbers must match). */
+  compare?: boolean;
 };
 
 // ---------- Session data (in memory only) ----------
@@ -80,7 +82,16 @@ export type AnswerStatus = "ok" | "fallback" | "refused";
 
 export type ChatMessage =
   | { role: "user"; text: string }
-  | { role: "assistant"; text: string; ruleIds: RuleId[]; status: AnswerStatus; simulated?: boolean; notice?: boolean };
+  | {
+      role: "assistant";
+      text: string;
+      ruleIds: RuleId[];
+      status: AnswerStatus;
+      simulated?: boolean;
+      notice?: boolean;
+      /** The fallback is the calculated comparison (Compare your options). */
+      compareFallback?: boolean;
+    };
 
 export type EvalResult = {
   goldenId: string;

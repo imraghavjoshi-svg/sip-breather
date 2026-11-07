@@ -4,7 +4,7 @@
 // reasons screen. Rule R11 word for word (no predictions, no fund names),
 // "Ask GR-1 about this", then three equal options.
 
-import { CircleMinus, CirclePause, CircleX } from "lucide-react";
+import { ChartBar, CircleMinus, CirclePause, CircleX } from "lucide-react";
 import { getRule, SOURCES } from "@/data/rules";
 import { useDemo } from "@/lib/demoState";
 import { Gr1Swirl, NewTag } from "../phone/parts";
@@ -20,13 +20,22 @@ export default function ReturnsAnswerSheet() {
       <p className="mt-2 text-[15px] leading-relaxed text-ink-2">{getRule("R11").text}</p>
       <p className="mt-2 text-[12px] text-ink-3">Source: {SOURCES.map((s) => s.label).join(" · ")}</p>
 
-      <button
-        type="button"
-        onClick={() => dispatch({ type: "openGr1", from: "returns" })}
-        className="mt-3 flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[14px] font-medium text-ink hover:bg-[#fafafa]"
-      >
-        <Gr1Swirl size={16} /> Ask GR-1 about this
-      </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => dispatch({ type: "openGr1", from: "returns" })}
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[14px] font-medium text-ink hover:bg-[#fafafa]"
+        >
+          <Gr1Swirl size={16} /> Ask GR-1 about this
+        </button>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: "openCompare" })}
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[14px] font-medium text-ink hover:bg-[#fafafa]"
+        >
+          <ChartBar size={16} aria-hidden /> Compare options
+        </button>
+      </div>
 
       <div className="mt-5 flex flex-col gap-2.5">
         <OptionRow Icon={CircleMinus} chevron onClick={() => dispatch({ type: "go", screen: "lower" })}>

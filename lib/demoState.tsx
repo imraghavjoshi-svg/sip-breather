@@ -28,6 +28,7 @@ export type Screen =
   | "cancelReasons" // classic Groww: Choose your reason to cancel this SIP
   | "withdrawAnswer" // NEW: "Withdrawing and cancelling are different" (sheet, over the reasons)
   | "returnsAnswer" // NEW: "How SIP returns work" (sheet, over the reasons)
+  | "compare" // NEW: "Compare your options" / "Your next 12 months"
   | "pause" // Pause
   | "lower" // Lower the amount
   | "lowerConfirm" // small confirm sheet (over lower)
@@ -45,8 +46,15 @@ export const SHEETS: Screen[] = [
   "returnsAnswer",
 ];
 
-/** "redeem": the YOUR SIP card; "returns": the "How SIP returns work" answer; "other": anywhere else. */
-export type Gr1From = "redeem" | "returns" | "other";
+/**
+ * "redeem": the YOUR SIP card; "returns": the "How SIP returns work" answer;
+ * "compare": "Explain this" on Compare (questions carry the comparison); "other": anywhere else.
+ */
+export type Gr1From = "redeem" | "returns" | "compare" | "other";
+
+/** What the user set on the Compare screen (pause length, lower amount as typed). */
+export type CompareDraft = { pauseMonths: PauseMonths; lowerInput: string };
+const DEFAULT_COMPARE_DRAFT: CompareDraft = { pauseMonths: 2, lowerInput: "200" };
 
 export type DemoState = {
   /** Screens the user has opened, in order. The last one is showing. Back removes it. */
@@ -64,7 +72,12 @@ export type DemoState = {
   gr1Open: boolean;
   /** Where GR-1 was opened from: decides its suggested questions. */
   gr1From: Gr1From;
+  /** A question GR-1 asks by itself when it opens ("Explain this" on Compare). */
+  gr1Ask: string | null;
   chat: ChatMessage[];
+  compare: CompareDraft;
+  /** Compare was opened in this run (for the test log; cleared when a row is saved). */
+  compareOpened: boolean;
 };
 
 export const DEFAULT_SIP_ID = "sip_flexi";
@@ -81,7 +94,10 @@ export const INITIAL_STATE: DemoState = {
   decision: null,
   gr1Open: false,
   gr1From: "other",
+  gr1Ask: null,
   chat: [],
+  compare: DEFAULT_COMPARE_DRAFT,
+  compareOpened: false,
 };
 
 export type DemoAction =
@@ -105,7 +121,15 @@ export type DemoAction =
   | { type: "confirmRedeem" }
   | { type: "backToSip" }
   | { type: "backToDashboard" }
-  | { type: "openGr1"; from?: Gr1From }
+  | { type: "openGr1"; from?: Gr1From; ask?: string }
+  | { type: "clearGr1Ask" }
+  | { type: "openCompare" }
+  | { type: "setComparePause"; months: PauseMonths }
+  | { type: "setCompareLower"; value: string }
+  /** Tapping an option card on Compare: goes to that option's existing flow ("keep" goes back). */
+  | { type: "compareChoose"; option: "keep" | DecisionOption }
+  /** Sent by the shell after a Test log row is saved: the next run starts fresh. */
+  | { type: "runLogged" }
   | { type: "closeGr1" }
   | { type: "addChat"; message: ChatMessage }
   | { type: "newChat" }
@@ -117,6 +141,7 @@ const STEP_STACKS: Record<StepTab, { stack: Screen[]; tab: HomeTab }> = {
   redeem: { stack: ["home", "redeemAmount", "redeemSheet"], tab: "dashboard" },
   reasons: { stack: ["home", "details", "cancelReasons"], tab: "sips" },
   answer: { stack: ["home", "details", "cancelReasons", "withdrawAnswer"], tab: "sips" },
+  compare: { stack: ["home", "details", "compare"], tab: "sips" },
 };
 
 /** What each cancel reason opens (classic_redesign.md, screen 9). */
@@ -169,6 +194,7 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         redeemInput: action.step === "redeem" && !state.redeemInput ? STEP_REDEEM_AMOUNT : state.redeemInput,
         draft: action.step === "answer" ? { ...DEFAULT_DRAFT, cancelReason: "withdraw" } : DEFAULT_DRAFT,
         gr1Open: false,
+        compareOpened: state.compareOpened || action.step === "compare",
       };
     }
     case "jumpToGr1":
@@ -202,10 +228,45 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
     }
     case "confirmSkip": {
       // From the redeem sheet or SIP details: back to that screen, which now
-      // shows the instalment as skipped. From anywhere else: the Done screen.
+      // shows the instalment as skipped. From Compare opened on the redeem
+      // sheet: back to the redeem sheet (Compare closes). Otherwise: Done.
+      const n = state.stack.length;
+      if (state.stack[n - 2] === "compare" && state.stack[n - 3] === "redeemSheet") {
+        return { ...state, decision: { sipId: state.sipId, option: "skip" }, stack: state.stack.slice(0, -2) };
+      }
       if (!skipsInPlace(state)) return demoReducer(state, { type: "confirm", option: "skip" });
       return { ...state, decision: { sipId: state.sipId, option: "skip" }, stack: state.stack.slice(0, -1) };
     }
+    case "openCompare":
+      return { ...state, stack: [...state.stack, "compare"], compareOpened: true };
+    case "setComparePause":
+      return { ...state, compare: { ...state.compare, pauseMonths: action.months } };
+    case "setCompareLower":
+      return { ...state, compare: { ...state.compare, lowerInput: action.value } };
+    case "compareChoose":
+      switch (action.option) {
+        case "keep":
+          return { ...state, stack: state.stack.slice(0, -1) };
+        case "skip":
+          return { ...state, stack: [...state.stack, "skipConfirm"] };
+        case "pause":
+          return {
+            ...state,
+            draft: { ...state.draft, pauseMonths: state.compare.pauseMonths },
+            stack: [...state.stack, "pause"],
+          };
+        case "lower":
+          return {
+            ...state,
+            draft: { ...state.draft, amountInput: state.compare.lowerInput },
+            stack: [...state.stack, "lower"],
+          };
+        case "cancel":
+          return { ...state, stack: [...state.stack, "cancelConfirm"] };
+      }
+      return state;
+    case "runLogged":
+      return { ...state, compareOpened: false };
     case "confirmRedeem":
       return { ...state, stack: [...state.stack, "redeemDone"], gr1Open: false };
     case "backToSip":
@@ -213,7 +274,9 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
     case "backToDashboard":
       return { ...state, stack: ["home"], tab: "dashboard", redeemInput: "", draft: DEFAULT_DRAFT };
     case "openGr1":
-      return { ...state, gr1Open: true, gr1From: action.from ?? "other" };
+      return { ...state, gr1Open: true, gr1From: action.from ?? "other", gr1Ask: action.ask ?? null };
+    case "clearGr1Ask":
+      return { ...state, gr1Ask: null };
     case "closeGr1":
       return { ...state, gr1Open: false };
     case "addChat":
@@ -252,6 +315,8 @@ export function stepForScreen(screen: Screen): StepTab {
       return "redeem";
     case "cancelReasons":
       return "reasons";
+    case "compare":
+      return "compare";
     default:
       return "answer";
   }

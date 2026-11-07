@@ -6,7 +6,7 @@
 // as the others. "Withdraw money, keep SIP" opens this SIP's "Redeem [fund]"
 // amount screen directly; Back returns here.
 
-import { ArrowUpRight, CalendarX2, CirclePause, CircleX } from "lucide-react";
+import { ArrowUpRight, CalendarX2, ChartBar, CirclePause, CircleX } from "lucide-react";
 import { useDemo } from "@/lib/demoState";
 import { NewTag } from "../phone/parts";
 import { OptionRow } from "../phone/OptionRow";
@@ -22,6 +22,13 @@ export default function WithdrawAnswerSheet() {
         You can take out some or all of your invested money and keep your SIP running. Or skip just the next
         instalment.
       </p>
+      <button
+        type="button"
+        onClick={() => dispatch({ type: "openCompare" })}
+        className="mt-3 flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[14px] font-medium text-ink hover:bg-[#fafafa]"
+      >
+        <ChartBar size={16} aria-hidden /> Compare options
+      </button>
 
       <div className="mt-5 flex flex-col gap-2.5">
         <OptionRow Icon={ArrowUpRight} chevron onClick={() => dispatch({ type: "withdrawKeepSip" })}>

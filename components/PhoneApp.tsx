@@ -21,6 +21,7 @@ import LowerConfirmSheet from "./screens/LowerConfirmSheet";
 import CancelConfirmSheet from "./screens/CancelConfirmSheet";
 import Gr1Sheet from "./screens/Gr1Sheet";
 import CancelReasonsScreen from "./screens/CancelReasonsScreen";
+import CompareScreen from "./screens/CompareScreen";
 import WithdrawAnswerSheet from "./screens/WithdrawAnswerSheet";
 import ReturnsAnswerSheet from "./screens/ReturnsAnswerSheet";
 
@@ -44,6 +45,8 @@ export function PhoneScreen() {
       return <SipDetails />;
     case "cancelReasons":
       return <CancelReasonsScreen />;
+    case "compare":
+      return <CompareScreen />;
     case "pause":
       return <PauseScreen />;
     case "lower":

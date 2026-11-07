@@ -11,6 +11,7 @@ const STEP_TABS: { id: StepTab; label: string }[] = [
   { id: "redeem", label: "2. Redeem" },
   { id: "reasons", label: "3. Cancel reasons" },
   { id: "answer", label: "4. Reason answer" },
+  { id: "compare", label: "5. Compare" },
 ];
 const ZOOMS: Zoom[] = [1, 0.9, 0.8];
 

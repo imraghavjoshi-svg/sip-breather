@@ -6,7 +6,7 @@
 // to ask GR-1. Skipping shows a small confirm, then returns here with
 // "Next instalment skipped". Nothing blocks the redemption.
 
-import { Check, Info } from "lucide-react";
+import { ChartBar, Check, Info } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { applicableNavDate, formatDayMonth, formatDayMonth2 } from "@/lib/dates";
@@ -90,7 +90,15 @@ function YourSipCard() {
         </p>
       )}
 
-      <div className="mt-2.5 flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => dispatch({ type: "openCompare" })}
+        className="mt-2 flex items-center gap-1.5 text-[14px] font-medium text-accent-text hover:underline"
+      >
+        <ChartBar size={15} aria-hidden /> Compare options
+      </button>
+
+      <div className="mt-1.5 flex items-center gap-2">
         {!skipped && (
           <button
             type="button"

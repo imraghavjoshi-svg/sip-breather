@@ -1,6 +1,6 @@
 // Test log: one row each time a demo run finishes: a Done screen (skip,
-// pause, lower, cancel), "Redemption placed", or a skip confirmed on SIP
-// details (which has no Done screen).
+// pause, lower, cancel), "Redemption placed", a skip confirmed on SIP
+// details (which has no Done screen), or "Keep as is" on Compare.
 // Kept only in this browser (localStorage). Every storage call is wrapped in
 // try/catch so the app keeps working if storage is blocked; in that case rows
 // are kept in memory until the page is closed.
@@ -19,6 +19,8 @@ export type TestLogRow = {
   cancelReason?: CancelReason;
   /** What the run ended with. */
   finalChoice: FinalChoice;
+  /** "Compare your options" was opened in this run (rows saved before it existed have none). */
+  compareOpened?: boolean;
   pauseMonths?: PauseMonths;
   newAmount?: number;
   redeemAmount?: number;
@@ -74,6 +76,7 @@ export const REASON_LABELS: Record<CancelReason, string> = {
 
 export const CHOICE_LABELS: Record<FinalChoice, string> = {
   redeem_only: "Redeem only",
+  keep: "Keep as is",
   skip: "Skip",
   pause: "Pause",
   lower: "Lower",
@@ -86,6 +89,7 @@ const CSV_COLUMNS = [
   "entry",
   "cancel_reason",
   "final_choice",
+  "compare_opened",
   "pause_months",
   "new_amount",
   "redeem_amount",
@@ -114,6 +118,7 @@ export function testLogToCsv(rows: TestLogRow[]): string {
       r.entry,
       r.cancelReason,
       r.finalChoice,
+      r.compareOpened === undefined ? undefined : r.compareOpened ? "yes" : "no",
       r.pauseMonths,
       r.newAmount,
       r.redeemAmount,

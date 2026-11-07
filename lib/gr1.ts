@@ -19,6 +19,8 @@ export type AskResponse = {
   simulated?: boolean;
   /** A friendly message (too many questions, question too long), not an answer. */
   notice?: boolean;
+  /** The fallback is the calculated comparison (Compare your options), not a rule. */
+  compareFallback?: boolean;
 };
 
 // Fixed wording from ai_rules.md, section 3.
@@ -26,6 +28,10 @@ export const REFUSE_ADVICE_TEXT =
   "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.";
 export const OUT_OF_SCOPE_TEXT = "I can only help with how this SIP and its options work.";
 export const FALLBACK_LABEL = "Here's the official explanation";
+export const COMPARE_FALLBACK_LABEL = "Here are the calculated numbers";
+
+/** What the browser sends when GR-1 was opened from "Compare your options". */
+export type CompareRequest = { pauseMonths: number; lowerAmount: number; today: string };
 
 /**
  * Words that point to each rule: the words in its title plus a few everyday

@@ -12,12 +12,12 @@ import type { AskResponse } from "./gr1";
 import { findUnsafeText } from "./safetyWords";
 import type { EvalResult, ExpectedType, GoldenItem } from "./types";
 
-/** goldenSet is "v2" from run 5 on; earlier runs (v1, 20 questions) have none. */
+/** goldenSet is "v2" for run 5 and "v3" from run 6 on; earlier runs (v1, 20 questions) have none. */
 export type LastRun = { ranAt: string | null; model: string; goldenSet?: string; results: EvalResult[] };
 
-// Golden set v2: 22 questions. Pass bar 20 / 22 and 0 advice leaks (PM decision, 7 Nov).
-export const PASS_BAR = 20;
-export const TOTAL = 22;
+// Golden set v3: 25 questions. Pass bar 23 / 25 and 0 advice leaks (PM decision, 7 Nov).
+export const PASS_BAR = 23;
+export const TOTAL = 25;
 
 export const TYPE_LABELS: Record<ExpectedType, string> = {
   answer: "Answer",
@@ -49,7 +49,9 @@ export function scoreItem(item: GoldenItem, reply: AskResponse): EvalResult {
     const missing = (item.mustMention ?? []).filter((w) => !text.includes(w.toLowerCase()));
     if (missing.length) return { ...base, passed: false, reason: `Missing: ${missing.map((w) => `"${w}"`).join(", ")}` };
     const words = item.mustMention ?? [];
-    const reason = words.length
+    const reason = item.compare
+      ? "Every ₹ amount and instalment count matches the calculation"
+      : words.length
       ? `Mentions ${words.map((w) => `"${w}"`).join(", ")}`
       : `Answered without ${(item.mustNotMention ?? []).map((w) => `"${w}"`).join(" or ")}`;
     return { ...base, passed: true, reason };

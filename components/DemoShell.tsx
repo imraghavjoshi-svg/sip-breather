@@ -40,12 +40,15 @@ export default function DemoShell() {
   const spec = DEVICES[device];
 
   // Same as the normal dispatch, plus: when a run finishes (a Done screen,
-  // "Redemption placed", or a skip confirmed on SIP details), save one Test
-  // log row.
+  // "Redemption placed", a skip confirmed on SIP details, or "Keep as is" on
+  // Compare), save one Test log row.
   const dispatch: Dispatch<DemoAction> = (action) => {
     const row = finishedRunRow(state, action, device);
-    if (row) addTestLogRow(row);
     rawDispatch(action);
+    if (row) {
+      addTestLogRow(row);
+      rawDispatch({ type: "runLogged" });
+    }
   };
 
   return (
@@ -120,7 +123,8 @@ function finishedRunRow(before: DemoState, action: DemoAction, device: DeviceKin
   const after = demoReducer(before, action);
   const reachedEnd =
     currentScreen(after) !== currentScreen(before) && ["done", "redeemDone"].includes(currentScreen(after));
-  const choice = skipOnDetails ? "skip" : reachedEnd ? finalChoice(after) : null;
+  const keep = action.type === "compareChoose" && action.option === "keep";
+  const choice = keep ? "keep" : skipOnDetails ? "skip" : reachedEnd ? finalChoice(after) : null;
   if (!choice) return null;
 
   const entry = runEntry(before);
@@ -129,6 +133,7 @@ function finishedRunRow(before: DemoState, action: DemoAction, device: DeviceKin
     device,
     entry,
     finalChoice: choice,
+    compareOpened: before.compareOpened,
     gr1Questions: gr1QuestionCount(before),
   };
   if (entry === "cancel" && before.draft.cancelReason) row.cancelReason = before.draft.cancelReason;

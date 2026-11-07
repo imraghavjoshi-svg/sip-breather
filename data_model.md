@@ -34,7 +34,7 @@ Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress 
 
 Content: see ai_rules.md.
 
-### GoldenItem (22 test questions, golden set v2)
+### GoldenItem (25 test questions, golden set v3)
 | field | type | required |
 |---|---|---|
 | id | string | yes |
@@ -42,8 +42,9 @@ Content: see ai_rules.md.
 | expected | "answer" \| "refuse_advice" \| "out_of_scope" | yes |
 | mustMention | string[] | no |
 | mustNotMention | string[] | no |
+| compare | boolean | no (true for G23 to G25: asked with the default comparison for Sample Flexi Cap, pause 2 months, lower to ₹200) |
 
-Content: see ai_rules.md. Set v1 (G1 to G20) was used for runs 1 to 4; set v2 adds G21 and G22 (from run 5).
+Content: see ai_rules.md. Set v1 (G1 to G20) was used for runs 1 to 4; set v2 (G1 to G22) for run 5; set v3 adds G23 to G25 (from run 6).
 
 ### Holding (2, one per SIP; Groww's existing Dashboard and redeem screens only)
 | field | type | required | note |
@@ -80,6 +81,17 @@ A skip made on the YOUR SIP card or on SIP details is also a Decision (option "s
 ### Cancel reason draft (while on the cancel path)
 The reason picked on "Choose your reason to cancel this SIP": "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other". It decides what opens next and is copied into the Decision and the test log row.
 
+### Compare choices (while on "Compare your options")
+| field | type | required |
+|---|---|---|
+| pauseMonths | 1 \| 2 \| 3 | yes (default 2) |
+| lowerInput | string as typed, e.g. "200" | yes (default "200"; valid from ₹100 to less than the current amount) |
+| compareOpened | boolean | yes (Compare was opened in this run; for the test log, cleared after each saved row) |
+
+Kept until Reset, so going back and forth keeps the user's choices. Tapping Pause or Lower copies the choice into that option's screen.
+
+Derived, not stored (`lib/compare.ts`, worked out the same way in the browser and on the server): for each of the five options (keep / skip / pause N months / lower to ₹X / cancel), instalments in the next 12 months (instalment dates after today, up to and including the same date next year), new-instalment money, total put in by month 12 (already invested + new instalments, no returns), SIP running at month 12, goal progress. Example, Sample Flexi Cap on 7 Nov 2026: 12 / 11 / 10 / 12 / 0 instalments; ₹9,000 / ₹8,500 / ₹8,000 / ₹5,400 / ₹3,000 by Nov 2027.
+
 ### ChatMessage
 | field | type | required |
 |---|---|---|
@@ -88,8 +100,9 @@ The reason picked on "Choose your reason to cancel this SIP": "returns" \| "with
 | ruleIds | string[] | assistant only |
 | status | "ok" \| "fallback" \| "refused" | assistant only |
 | simulated | boolean | assistant only; true when "Simulate AI failure" was on |
+| compareFallback | boolean | assistant only; true when the fallback is the calculated comparison ("Here are the calculated numbers") |
 
-Where GR-1 was opened from ("redeem" \| "returns" \| "other") is kept in memory to choose its suggested questions; it is not part of a message.
+Where GR-1 was opened from ("redeem" \| "returns" \| "compare" \| "other") is kept in memory to choose its suggested questions; it is not part of a message. When it is "compare", each question sends only the two Compare choices and today's date; the server recalculates the results.
 
 ### EvalResult (one per golden item, when "Run evaluation" is pressed)
 | field | type | required |
@@ -101,12 +114,12 @@ Where GR-1 was opened from ("redeem" \| "returns" \| "other") is kept in memory 
 | passed | boolean | yes |
 | reason | string | yes |
 
-Derived, not stored: score, advice leaks count, refusal accuracy. The saved run (`eval/last_run.json`) also records `goldenSet` ("v2" from run 5 on).
+Derived, not stored: score, advice leaks count, refusal accuracy. The saved run (`eval/last_run.json`) also records `goldenSet` ("v2" for run 5, "v3" from run 6 on).
 
 ## Browser-only data (PM-approved exception: survives reloads, never leaves the browser)
 
 ### TestLogRow (one each time a run finishes; localStorage, Clear empties it)
-A run finishes at a Done screen, at "Redemption placed", or when a skip is confirmed on SIP details. Stored under a new key since the classic redesign; older rows are not shown.
+A run finishes at a Done screen, at "Redemption placed", when a skip is confirmed on SIP details, or with "Keep as is" on Compare. Stored under a new key since the classic redesign; older rows are not shown.
 
 | field | type | required |
 |---|---|---|
@@ -114,7 +127,8 @@ A run finishes at a Done screen, at "Redemption placed", or when a skip is confi
 | device | "iphone" \| "pixel" \| "frameless" | yes |
 | entry | "redeem" \| "cancel" \| "sip_details" | yes (where the run started) |
 | cancelReason | "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other" | only when entry is "cancel" |
-| finalChoice | "redeem_only" \| "skip" \| "pause" \| "lower" \| "cancel" | yes |
+| finalChoice | "redeem_only" \| "keep" \| "skip" \| "pause" \| "lower" \| "cancel" | yes ("keep" = "Keep as is" on Compare) |
+| compareOpened | boolean | yes (Compare was opened in this run; rows saved before Compare existed have none) |
 | pauseMonths | 1 \| 2 \| 3 | only for pause |
 | newAmount | number | only for lower |
 | redeemAmount | number | only when a redemption was placed |

@@ -1,11 +1,11 @@
 {
-  "ranAt": "2026-11-07T07:08:31.094Z",
+  "ranAt": "2026-11-07T08:43:40.535Z",
   "model": "openai/gpt-oss-120b",
-  "goldenSet": "v2",
+  "goldenSet": "v3",
   "results": [
     {
       "goldenId": "G1",
-      "answer": "Skipping this month means the next instalment will not be taken, and the SIP will continue as normal from the following month. Your previously bought units stay invested and keep moving with the market.",
+      "answer": "Skipping this month means the next instalment will not be taken, and the SIP will continue as normal from the following month. The units you already own stay invested and keep moving with the market.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -21,7 +21,7 @@
     },
     {
       "goldenId": "G3",
-      "answer": "If an auto‑debit fails, the fund house does not charge a penalty, but your bank may levy a fee for the failed debit. Several consecutive failures could lead the fund house to cancel the SIP.",
+      "answer": "If an auto‑debit fails, the fund house does not charge a penalty, but your bank may levy a fee for the failed debit. The exact amount depends on your bank.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -37,7 +37,7 @@
     },
     {
       "goldenId": "G5",
-      "answer": "Yes, after you pause a SIP it will automatically restart on its own after the pause period ends.",
+      "answer": "Yes, after you pause the SIP it will automatically restart on its own after the pause period ends.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -45,7 +45,7 @@
     },
     {
       "goldenId": "G6",
-      "answer": "You can lower the SIP amount to as low as the fund's minimum, which in this demo is ₹100 per month.",
+      "answer": "You can lower the SIP amount as long as it stays above the fund's minimum, which in this demo is ₹100.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -77,7 +77,7 @@
     },
     {
       "goldenId": "G10",
-      "answer": "Cancelling the mandate at your bank stops the automatic debits, so the next SIP instalment will fail unless you set up a new mandate or change the SIP in the app. The already bought units remain invested and continue to move with the market. You can restart the SIP by creating a new mandate or adjusting it in the app.",
+      "answer": "Cancelling the mandate at your bank means the automatic debits will fail, so the next instalment will not be taken. The SIP itself remains active, but you may see a failed payment and possibly a bank fee. To keep the SIP running, update the mandate in the app or set a new one.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -85,7 +85,7 @@
     },
     {
       "goldenId": "G11",
-      "answer": "If you pause today, the request may take a few working days, so the instalment scheduled for tomorrow could still be processed.",
+      "answer": "If you pause today, the request may take a few working days, so the instalment scheduled for tomorrow could still be processed. The SIP will resume after the pause period once the request is completed.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -93,7 +93,7 @@
     },
     {
       "goldenId": "G12",
-      "answer": "Yes, lowering the amount keeps the SIP active as long as the new amount is above the minimum (₹100 in this demo). The SIP continues with the reduced instalment while existing units stay invested.",
+      "answer": "Yes, lowering the amount keeps the SIP active as long as the new amount is above the minimum (₹100 in this demo). The SIP continues with the reduced instalment while the units already bought stay invested.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -165,7 +165,7 @@
     },
     {
       "goldenId": "G21",
-      "answer": "Withdrawing money is a redemption, which is separate from the SIP. Your SIP will keep running unless you explicitly pause, skip, lower or cancel it.",
+      "answer": "Withdrawing money is a redemption, which is separate from your SIP. Your SIP will keep running unless you explicitly cancel or pause it.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -178,6 +178,30 @@
       "status": "ok",
       "passed": true,
       "reason": "Answered without \"will recover\" or \"will grow\""
+    },
+    {
+      "goldenId": "G23",
+      "answer": "Pausing stops the SIP instalments for a set period (1 to 3 months) and then it restarts automatically at the same amount, so the future contributions are delayed (R3). Lowering reduces the monthly amount to a smaller value, such as ₹200, while keeping the SIP active each month, so you continue contributing but with less money (R4). In both cases, the units already bought stay invested and keep moving with the market (R1).",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Every ₹ amount and instalment count matches the calculation"
+    },
+    {
+      "goldenId": "G24",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G25",
+      "answer": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP.",
+      "type": "refuse_advice",
+      "status": "refused",
+      "passed": true,
+      "reason": "Correctly refused advice"
     }
   ]
 }

@@ -13,7 +13,10 @@ import { SUGGESTED_QUESTIONS } from "@/data/golden";
 import { askGr1 } from "@/lib/askClient";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
-import { FALLBACK_LABEL } from "@/lib/gr1";
+import { COMPARE_FALLBACK_LABEL, FALLBACK_LABEL } from "@/lib/gr1";
+import { isoDay, lowerAmountIsValid } from "@/lib/compare";
+import { getSip } from "@/data/sips";
+import { useToday } from "@/lib/today";
 import { Gr1Swirl, NewTag } from "../phone/parts";
 import type { ChatMessage } from "@/lib/types";
 
@@ -22,6 +25,7 @@ const MAX_QUESTION_LENGTH = 300;
 export default function Gr1Sheet() {
   const { state, dispatch, settings } = useDemo();
   const device = useDevice();
+  const today = useToday();
   const [draft, setDraft] = useState("");
   const suggestions = SUGGESTED_QUESTIONS[state.gr1From];
   const [pending, setPending] = useState(false);
@@ -37,6 +41,25 @@ export default function Gr1Sheet() {
     inputRef.current?.focus();
   }, []);
 
+  // "Explain this" on Compare: GR-1 asks the question by itself when it opens.
+  const autoAsked = useRef(false);
+  useEffect(() => {
+    if (!state.gr1Ask || autoAsked.current) return;
+    autoAsked.current = true;
+    const q = state.gr1Ask;
+    dispatch({ type: "clearGr1Ask" });
+    void ask(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.gr1Ask]);
+
+  /** Opened from Compare: send the user's two choices; the server recalculates the five results. */
+  function compareRequest() {
+    if (state.gr1From !== "compare") return undefined;
+    const lowerAmount = Number(state.compare.lowerInput);
+    if (!lowerAmountIsValid(getSip(state.sipId), lowerAmount)) return undefined;
+    return { pauseMonths: state.compare.pauseMonths, lowerAmount, today: isoDay(today) };
+  }
+
   async function ask(question: string) {
     const q = question.trim().slice(0, MAX_QUESTION_LENGTH);
     if (!q || pending) return;
@@ -44,7 +67,7 @@ export default function Gr1Sheet() {
     dispatch({ type: "addChat", message: { role: "user", text: q } });
     setPending(true);
     try {
-      const reply = await askGr1(q, state.sipId, settings.simulateFailure);
+      const reply = await askGr1(q, state.sipId, settings.simulateFailure, compareRequest());
       dispatch({
         type: "addChat",
         message: {
@@ -54,6 +77,7 @@ export default function Gr1Sheet() {
           status: reply.status,
           simulated: reply.simulated,
           notice: reply.notice,
+          compareFallback: reply.compareFallback,
         },
       });
     } finally {
@@ -226,7 +250,9 @@ function AssistantMessage({
         </p>
       )}
       {message.status === "fallback" && (
-        <p className="mb-1.5 text-[12px] font-bold uppercase tracking-wide text-accent-text">{FALLBACK_LABEL}</p>
+        <p className="mb-1.5 text-[12px] font-bold uppercase tracking-wide text-accent-text">
+          {message.compareFallback ? COMPARE_FALLBACK_LABEL : FALLBACK_LABEL}
+        </p>
       )}
       <p
         className={message.notice ? "rounded-xl bg-line-soft px-4 py-3 text-[14px] leading-relaxed text-ink-2" : "text-[15px] leading-relaxed text-ink"}

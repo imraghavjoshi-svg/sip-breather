@@ -8,7 +8,7 @@
 // No returns, NAV or units on this screen.
 
 import { useState } from "react";
-import { CalendarDays, ChartNoAxesColumn, ChevronDown, ChevronRight, CircleHelp, Pencil } from "lucide-react";
+import { CalendarDays, ChartBar, ChartNoAxesColumn, ChevronDown, ChevronRight, CircleHelp, Pencil } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
@@ -104,6 +104,18 @@ export default function SipDetails() {
               date={view.nextDate!}
               right={<DottedLink onClick={() => dispatch({ type: "go", screen: "skipConfirm" })}>Skip</DottedLink>}
             />
+          )}
+          {!cancelled && (
+            <button
+              type="button"
+              onClick={() => dispatch({ type: "openCompare" })}
+              className="mt-4 flex w-full items-center gap-3 rounded-lg border border-line px-3.5 py-3 text-left hover:bg-[#fafafa]"
+            >
+              <ChartBar size={18} className="shrink-0 text-ink" aria-hidden />
+              <span className="flex-1 text-[15px] text-ink">Compare options</span>
+              <NewTag />
+              <ChevronRight size={17} className="shrink-0 text-ink-2" aria-hidden />
+            </button>
           )}
         </section>
 
