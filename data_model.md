@@ -61,7 +61,7 @@ Derived, not stored: invested (from Sip); total current value ₹7,084; total re
 ### Redemption (while on the redeem flow)
 | field | type | required |
 |---|---|---|
-| sipId | string | yes (the fund being redeemed) |
+| sipId | string | yes (the fund being redeemed: chosen on the Dashboard, or the SIP itself for "Withdraw money, keep SIP") |
 | amount | string as typed, e.g. "1000" or "250.5" | yes |
 
 Cleared when a new redemption starts or on Reset. Dashboard holdings do not change after a redemption (demo).

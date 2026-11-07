@@ -89,6 +89,8 @@ export type DemoAction =
   | { type: "openSip"; sipId: string }
   | { type: "openFund"; sipId: string }
   | { type: "startRedeem" }
+  /** "Withdraw money, keep SIP": this SIP's fund, straight to its Redeem amount screen. */
+  | { type: "withdrawKeepSip" }
   | { type: "go"; screen: Screen }
   | { type: "back" }
   | { type: "jumpToStep"; step: StepTab }
@@ -144,6 +146,15 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       const base = currentScreen(state) === "fundSheet" ? state.stack.slice(0, -1) : state.stack;
       return { ...state, stack: [...base, "redeemAmount"], redeemInput: "" };
     }
+    case "withdrawKeepSip":
+      // Opened over the withdraw answer, so Back returns to that sheet. Never
+      // goes through the Dashboard or the fund sheet; same fund as the SIP.
+      return {
+        ...state,
+        stack: [...state.stack.filter((s) => s !== "fundSheet"), "redeemAmount"],
+        redeemInput: "",
+        gr1Open: false,
+      };
     case "go":
       return { ...state, stack: [...state.stack, action.screen] };
     case "back":

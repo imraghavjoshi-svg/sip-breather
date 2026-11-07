@@ -10,7 +10,7 @@ import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import { expectedTransferDate, formatDayMonth, formatFullDate } from "@/lib/dates";
 import { BANK_LABEL, formatRupees2 } from "@/lib/redeem";
-import { formatRupees, sipView } from "@/lib/sip";
+import { sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
 import { Disclaimer } from "../phone/parts";
 import { PrimaryButton } from "../phone/Sheet";
@@ -25,7 +25,7 @@ export default function RedeemDoneScreen() {
 
   let sipLine: string | null = null;
   if (view.status === "active") {
-    sipLine = `Your SIP continues. Next instalment of ${formatRupees(view.monthlyAmount)} on ${formatDayMonth(view.nextDate!)}.`;
+    sipLine = `Your SIP continues on ${formatDayMonth(view.nextDate!)}.`;
   } else if (view.status === "skipping") {
     sipLine = `Your next instalment is skipped. Your SIP continues on ${formatDayMonth(view.nextDate!)}.`;
   }

@@ -3,7 +3,8 @@
 // NEW (green "New" tag): answer to "Want to withdraw money" on the cancel
 // reasons screen. Explains that withdrawing and cancelling are different,
 // then four equal options. "Continue to cancel" has the same size and weight
-// as the others.
+// as the others. "Withdraw money, keep SIP" opens this SIP's "Redeem [fund]"
+// amount screen directly; Back returns here.
 
 import { ArrowUpRight, CalendarX2, CirclePause, CircleX } from "lucide-react";
 import { useDemo } from "@/lib/demoState";
@@ -23,7 +24,7 @@ export default function WithdrawAnswerSheet() {
       </p>
 
       <div className="mt-5 flex flex-col gap-2.5">
-        <OptionRow Icon={ArrowUpRight} chevron onClick={() => dispatch({ type: "startRedeem" })}>
+        <OptionRow Icon={ArrowUpRight} chevron onClick={() => dispatch({ type: "withdrawKeepSip" })}>
           Withdraw money, keep SIP
         </OptionRow>
         <OptionRow Icon={CalendarX2} chevron onClick={() => dispatch({ type: "go", screen: "skipConfirm" })}>
