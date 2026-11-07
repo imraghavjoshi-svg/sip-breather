@@ -20,7 +20,7 @@ Rule used: if a value can be worked out from other values, it is not stored.
 | goalName | string | no | "Bike" |
 | goalTarget | number | no | 60000 |
 
-Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress = invested / goalTarget; after a date change, the next instalment is the first on the new day, or the old next instalment if the new day is less than 5 days away (R12); next instalment date = the next time instalmentDay comes round after today; last instalment date = the most recent instalmentDay before today; pause restart date = next date + pauseMonths.
+Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress = invested / goalTarget; after a date change (R12), the next instalment stays on the old date and the new day starts in the month after it (e.g. 5 Dec stays, then 15 Jan 2027); next instalment date = the next time instalmentDay comes round after today; last instalment date = the most recent instalmentDay before today; pause restart date = next date + pauseMonths.
 
 ### Rule (the facts GR-1 is allowed to use)
 | field | type | required |

@@ -8,7 +8,7 @@
 import { ListFilter } from "lucide-react";
 import { SIPS } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
-import { formatDayMonth } from "@/lib/dates";
+import { formatDayMonth, ordinal } from "@/lib/dates";
 import { formatRupees, sipView, type SipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
 import { Disclaimer, FundSquare } from "../phone/parts";
@@ -100,6 +100,9 @@ function ActiveRow({ view, index, divider, onOpen }: { view: SipView; index: num
             {formatRupees(view.monthlyAmount)}
             {view.status === "paused" && <> • {view.statusLabel}</>}
             {view.status === "skipping" && <> • Next instalment skipped</>}
+            {view.newDayFrom && (
+              <> • {ordinal(view.instalmentDay)} from {formatDayMonth(view.newDayFrom)}</>
+            )}
           </span>
         </span>
         <span

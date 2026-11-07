@@ -7,7 +7,7 @@
 import { CalendarDays, CircleCheck, IndianRupee, Wallet } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
-import { dateChangeStart, formatDayMonth, formatFullDate, nextInstalment, ordinal } from "@/lib/dates";
+import { dateChangeSentence, dateChangeStart, formatFullDate, nextInstalment, ordinal } from "@/lib/dates";
 import { checkNewAmount, formatRupees, invested, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
 import { InfoRow } from "../phone/InfoRow";
@@ -35,35 +35,21 @@ export default function LowerConfirmSheet() {
     <Sheet label="Confirm change" onDismiss={() => dispatch({ type: "back" })}>
       <h2 className="text-[20px] font-medium text-ink">{title}</h2>
       {start && (
-        <p className="mt-1 text-[14px] text-ink-2">From {formatDayMonth(start.firstOnNewDay)}, every month</p>
+        <p className="mt-1 text-[14px] text-ink-2">From {formatFullDate(start.firstOnNewDay)}, every month</p>
       )}
 
       <div className="mt-4 rounded-xl border border-line px-[15px]">
         {amountChanged && (
           <InfoRow Icon={IndianRupee}>
-            Amount: from {formatRupees(current)} to <b className="font-medium text-ink">{formatRupees(newAmount)}</b>
-            {!start && (
-              <>
-                , starting with your next instalment on{" "}
-                <b className="font-medium text-ink">{formatFullDate(nextInstalment(view.instalmentDay, today))}</b>
-              </>
-            )}
-            .
+            Amount: from {formatRupees(current)} to <b className="font-medium text-ink">{formatRupees(newAmount)}</b>, starting
+            with your next instalment on{" "}
+            <b className="font-medium text-ink">{formatFullDate(nextInstalment(view.instalmentDay, today))}</b>.
           </InfoRow>
         )}
         {start && (
           <InfoRow Icon={CalendarDays}>
             Date: from the {ordinal(view.instalmentDay)} to <b className="font-medium text-ink">the {ordinal(newDay!)}</b>.{" "}
-            {start.oldInstalmentStays ? (
-              <>
-                Your next instalment on {formatDayMonth(start.oldInstalmentStays)} stays as it is. The new date starts from{" "}
-                <b className="font-medium text-ink">{formatFullDate(start.firstOnNewDay)}</b>.
-              </>
-            ) : (
-              <>
-                Next instalment on <b className="font-medium text-ink">{formatFullDate(start.firstOnNewDay)}</b>.
-              </>
-            )}
+            {dateChangeSentence(view.instalmentDay, newDay!, today)}
           </InfoRow>
         )}
         <InfoRow Icon={CircleCheck}>Your SIP stays active.</InfoRow>

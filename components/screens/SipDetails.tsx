@@ -98,6 +98,20 @@ export default function SipDetails() {
               date={view.nextDate!}
               right={<span className="text-[13px] text-ink-2">{view.statusLabel}</span>}
             />
+          ) : view.newDayFrom ? (
+            // Date changed (R12): the next instalment stays on the old date, then the new date.
+            <>
+              <UpcomingRow
+                label={`${nextNumber} instalment`}
+                date={view.nextDate!}
+                right={<span className="rounded bg-line-soft px-2 py-0.5 text-[13px] font-medium text-ink-2">Old date</span>}
+              />
+              <UpcomingRow
+                label={`${ordinal(sip.instalmentsDone + 2)} instalment`}
+                date={view.newDayFrom}
+                right={<span className="rounded bg-accent-tint px-2 py-0.5 text-[13px] font-medium text-accent-text">New date</span>}
+              />
+            </>
           ) : (
             <UpcomingRow
               label={`${nextNumber} instalment`}

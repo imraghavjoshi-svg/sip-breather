@@ -9,6 +9,7 @@ import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import {
+  dateChangeSentence,
   dateChangeStart,
   daysBefore,
   formatDayMonth,
@@ -80,24 +81,15 @@ export default function DoneScreen() {
         );
         break;
       }
-      const { firstOnNewDay, oldInstalmentStays } = dateChangeStart(sip.instalmentDay, decision.newDay, today);
+      const { firstOnNewDay } = dateChangeStart(sip.instalmentDay, decision.newDay, today);
       title =
         decision.option === "date"
           ? `Your SIP date is now the ${ordinal(decision.newDay)}`
           : `Your SIP is now ${amount} on the ${ordinal(decision.newDay)}`;
-      subtitle = `From ${formatDayMonth(firstOnNewDay)}, every month.`;
+      subtitle = `From ${formatFullDate(firstOnNewDay)}, every month.`;
       rows = (
         <InfoRow Icon={CalendarDays} last>
-          {oldInstalmentStays ? (
-            <>
-              Your next instalment on <b className="font-medium text-ink">{formatFullDate(oldInstalmentStays)}</b> stays as
-              it is. The new date starts from <b className="font-medium text-ink">{formatFullDate(firstOnNewDay)}</b>.
-            </>
-          ) : (
-            <>
-              Next instalment on <b className="font-medium text-ink">{formatFullDate(firstOnNewDay)}</b>.
-            </>
-          )}
+          {dateChangeSentence(sip.instalmentDay, decision.newDay, today)}
         </InfoRow>
       );
       break;

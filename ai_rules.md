@@ -22,7 +22,7 @@ General rules written for this demo. Exact limits differ by fund house and bank,
 
 | R12 | Changing the SIP date | You can change the date of your SIP. The change usually applies from the next cycle; if the new date is very close, the upcoming instalment may still be taken on the old date. |
 
-R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). R12 was added on 7 Nov 2026 with SIP date changing (same sources as every rule); the "Change amount/date" screen follows it: a new date less than 5 days away starts from the following month, and the next instalment on the old date stays. No full evaluation was re-run for R12 (PM decision); see eval/EVIDENCE_LOG.md for the spot checks. The "Not satisfied with returns" answer on the cancel reasons screen shows R11 word for word.
+R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). R12 was added on 7 Nov 2026 with SIP date changing (same sources as every rule); the "Change amount/date" screen follows it: a new date always starts from the next cycle, so the upcoming instalment stays on its old date and the new date starts in the month after it. No full evaluation was re-run for R12 (PM decision); see eval/EVIDENCE_LOG.md for the spot checks. The "Not satisfied with returns" answer on the cancel reasons screen shows R11 word for word.
 
 Source for every rule: label "SIP basics: AMFI investor education", url `https://www.amfiindia.com/investor-corner`; and "Groww Help Centre", url `https://groww.in/help`.
 

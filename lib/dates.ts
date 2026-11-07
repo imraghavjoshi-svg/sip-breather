@@ -101,9 +101,9 @@ export function formatDayMonth(d: Date): string {
   return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
-/** "5 Dec 2026" */
+/** "5 Dec 2026" (non-breaking spaces, so a date never splits across two lines) */
 export function formatFullDate(d: Date): string {
-  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 /** "January", used in "SIP continues in January". */
@@ -128,29 +128,26 @@ export function ordinal(n: number): string {
   return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 }
 
-// ---------- Changing the SIP date ----------
-
-/** A new date less than this many days away starts from the following month (rule R12). */
-export const DATE_CHANGE_NOTICE_DAYS = 5;
+// ---------- Changing the SIP date (rule R12) ----------
 
 /**
- * When a new SIP date takes effect. The first instalment on the new day is
- * the next time that day comes round after today; if that is less than 5 days
- * away, it moves to the following month and the next instalment on the old
- * day stays as it is.
- *   today 7 Nov 2026, old day 5: new 15th → first 15 Nov, nothing stays;
- *   new 10th → 10 Nov is 3 days away, so 5 Dec stays and the new date starts 10 Dec.
+ * When a new SIP date takes effect: always from the next cycle. The upcoming
+ * instalment stays on its old date, and the new date starts in the month
+ * after it.
+ *   today 7 Nov 2026, old day 5 (next 5 Dec): new 15th → 5 Dec stays, then 15 Jan 2027;
+ *   new 2nd → 5 Dec stays, then 2 Jan 2027.
  */
 export function dateChangeStart(
   oldDay: number,
   newDay: number,
   today: Date,
-): { firstOnNewDay: Date; oldInstalmentStays: Date | null } {
-  const soonest = nextInstalment(newDay, today);
-  const daysAway = Math.round((soonest.getTime() - startOfDay(today).getTime()) / 86_400_000);
-  if (daysAway >= DATE_CHANGE_NOTICE_DAYS) return { firstOnNewDay: soonest, oldInstalmentStays: null };
-  return {
-    firstOnNewDay: dayOfMonth(soonest, 1, newDay),
-    oldInstalmentStays: nextInstalment(oldDay, today),
-  };
+): { oldInstalmentStays: Date; firstOnNewDay: Date } {
+  const oldInstalmentStays = nextInstalment(oldDay, today);
+  return { oldInstalmentStays, firstOnNewDay: dayOfMonth(oldInstalmentStays, 1, newDay) };
+}
+
+/** "Your 5 Dec instalment stays as it is. From 15 Jan 2027, your SIP runs on the 15th every month." */
+export function dateChangeSentence(oldDay: number, newDay: number, today: Date): string {
+  const { oldInstalmentStays, firstOnNewDay } = dateChangeStart(oldDay, newDay, today);
+  return `Your ${formatDayMonth(oldInstalmentStays)} instalment stays as it is. From ${formatFullDate(firstOnNewDay)}, your SIP runs on the ${ordinal(newDay)} every month.`;
 }

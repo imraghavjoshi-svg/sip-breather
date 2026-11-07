@@ -28,6 +28,8 @@ export type SipView = {
   monthlyAmount: number;
   /** Day of the month instalments are taken (the new day after a date change). */
   instalmentDay: number;
+  /** After a date change: the first instalment on the new day (the next one stays on the old date). */
+  newDayFrom?: Date;
   invested: number;
   /** null once cancelled. */
   nextDate: Date | null;
@@ -65,12 +67,13 @@ export function sipView(sip: Sip, decision: Decision | null, today: Date): SipVi
     case "date": {
       const view = { ...base, monthlyAmount: decision.newAmount ?? sip.monthlyAmount };
       if (!decision.newDay) return { ...view, statusLabel: "Amount lowered" };
-      // New date: the next instalment is the old one if it stays, else the first on the new day.
+      // New date (R12): the next instalment stays on the old date; the new day starts the month after.
       const { firstOnNewDay, oldInstalmentStays } = dateChangeStart(sip.instalmentDay, decision.newDay, today);
       return {
         ...view,
         instalmentDay: decision.newDay,
-        nextDate: oldInstalmentStays ?? firstOnNewDay,
+        nextDate: oldInstalmentStays,
+        newDayFrom: firstOnNewDay,
         statusLabel: decision.option === "date" ? "Date changed" : "Amount and date changed",
       };
     }

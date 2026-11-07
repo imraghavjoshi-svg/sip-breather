@@ -7,9 +7,10 @@
 //     messages: below the minimum, or not lower than now. Laptop digits and
 //     Backspace also work.
 //   Date: "Choose your SIP date", a grid of dates 1–28 (current date outlined,
-//     selected date filled green) and a line with the next instalment on the
-//     real calendar. A new date less than 5 days away starts from the
-//     following month and the next instalment on the old date stays (R12).
+//     selected date filled green) and a line under it. A new date always starts
+//     from the next cycle (R12): the upcoming instalment stays on its old date
+//     and the new date starts the month after ("Your 5 Dec instalment stays as
+//     it is. From 15 Jan 2027, your SIP runs on the 15th every month.").
 // Both can be changed in the same visit; Continue opens one confirm sheet
 // showing both. When reached from "Choose your reason to cancel", a "Cancel
 // instead" link is shown.
@@ -18,7 +19,7 @@ import { useEffect } from "react";
 import { getSip } from "@/data/sips";
 import { currentScreen, inCancelPath, useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
-import { dateChangeStart, formatDayMonth, formatFullDate, nextInstalment, ordinal } from "@/lib/dates";
+import { dateChangeSentence, formatFullDate, nextInstalment, ordinal } from "@/lib/dates";
 import { checkNewAmount, formatRupees, MAX_AMOUNT_DIGITS, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
 import { Disclaimer, ScreenHeader } from "../phone/parts";
@@ -133,7 +134,6 @@ export default function LowerAmountScreen() {
 function DatePicker({ currentDay, newDay, today }: { currentDay: number; newDay: number | undefined; today: Date }) {
   const { dispatch } = useDemo();
   const changed = newDay !== undefined && newDay !== currentDay;
-  const start = changed ? dateChangeStart(currentDay, newDay, today) : null;
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-5">
@@ -164,20 +164,13 @@ function DatePicker({ currentDay, newDay, today }: { currentDay: number; newDay:
       </div>
 
       <div className="mt-6 rounded-xl bg-[#F6FCF9] px-[15px] py-3 text-[14px] leading-snug text-ink-2" role="status">
-        {!start ? (
+        {!changed ? (
           <>
             Next instalment: <b className="font-medium text-ink">{formatFullDate(nextInstalment(currentDay, today))}</b>. Tap a
             date to change it.
           </>
-        ) : start.oldInstalmentStays ? (
-          <>
-            Your next instalment on <b className="font-medium text-ink">{formatDayMonth(start.oldInstalmentStays)}</b> stays as it
-            is. The new date starts from <b className="font-medium text-ink">{formatDayMonth(start.firstOnNewDay)}</b>.
-          </>
         ) : (
-          <>
-            Next instalment: <b className="font-medium text-ink">{formatFullDate(start.firstOnNewDay)}</b>
-          </>
+          dateChangeSentence(currentDay, newDay, today)
         )}
       </div>
       <p className="mt-2 text-[12px] text-ink-3">Dates 1 to 28 are available, so every month has your date.</p>
