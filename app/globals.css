@@ -45,3 +45,15 @@ body {
   color: #111827;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
+
+/*
+  Inside the phone: no visible scrollbars (real phones hide them); scrolling
+  with the wheel, trackpad, touch and keyboard still works.
+*/
+.phone-screen,
+.phone-screen * {
+  scrollbar-width: none;
+}
+.phone-screen ::-webkit-scrollbar {
+  display: none;
+}

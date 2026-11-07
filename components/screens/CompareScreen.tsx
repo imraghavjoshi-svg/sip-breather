@@ -1,17 +1,20 @@
 "use client";
 
 // NEW (green "New" tag): "Compare your options" for one SIP, classic Groww
-// style. Five equal cards (Keep as is / Skip / Pause 1–3 months / Lower to
-// ₹__ / Cancel) with numbers for the next 12 months worked out from real
-// calendar dates (lib/compare.ts), a plain bar chart of "total put in", the
-// footnote, and "Explain this" (GR-1 with the five results).
+// style. Order (PM, 7 Nov): the bar chart of "total put in" straight under
+// the title (all five totals visible without scrolling), the footnote, then
+// five compact equal cards (Keep as is / Skip / Pause 1–3 months / Lower to
+// ₹__ / Cancel): title, one line "₹9,000 put in by Nov 2027 · 12
+// instalments", and a "Details" toggle for "SIP running" and the goal. The
+// pause selector and amount field stay visible. "Explain this" (GR-1 with the
+// five results) is pinned at the bottom. Numbers come from lib/compare.ts.
 //
-// No "recommended" label, no ranking: cards stay in a fixed order and Cancel
-// looks like the others. Contributions only, never returns. Bars are one
-// neutral grey with the value at the end (no green-good / red-bad).
+// No "recommended" label, no ranking: cards and bars stay in a fixed order
+// and Cancel looks like the others. Contributions only, never returns. Bars
+// are one neutral grey with the value at the end (no green-good / red-bad).
 
-import type { ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { compareOptions, instalmentsText, lowerAmountIsValid, type CompareResult } from "@/lib/compare";
 import { formatDayMonth, nextInstalment } from "@/lib/dates";
@@ -35,13 +38,14 @@ export default function CompareScreen() {
   const lowerAmount = Number(lowerInput);
   const lowerOk = lowerInput !== "" && lowerAmountIsValid(sip, lowerAmount);
   const calc = compareOptions(sip.id, { pauseMonths, lowerAmount: lowerOk ? lowerAmount : sip.minAmount }, today);
-  // While the typed amount is not valid, the Lower card has no numbers and a neutral title.
+  // While the typed amount is not valid, the Lower option has no numbers and a neutral title.
   const c = {
     ...calc,
     results: calc.results.map((r) => (r.id === "lower" && !lowerOk ? { ...r, label: "Lower the amount" } : r)),
   };
   const shown = c.results.filter((r) => r.id !== "lower" || lowerOk);
   const max = Math.max(...shown.map((r) => r.totalPutIn));
+  const goal = c.goalTarget && c.goalName ? { target: c.goalTarget, name: c.goalName } : null;
 
   const choose = (option: CompareResult["id"]) => dispatch({ type: "compareChoose", option });
 
@@ -49,7 +53,7 @@ export default function CompareScreen() {
     <div className="flex h-full flex-col bg-white">
       <ScreenHeader onBack={() => dispatch({ type: "back" })} />
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-4">
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pb-4">
         <NewTag className="w-fit" />
         <h1 className="mt-2 text-[20px] font-medium text-ink">Your next 12 months</h1>
         <p className="mt-1 text-[14px] text-ink-2">{sip.fundName}</p>
@@ -57,38 +61,12 @@ export default function CompareScreen() {
           {formatRupees(sip.monthlyAmount)} monthly · next on {formatDayMonth(nextInstalment(sip.instalmentDay, today))}
         </p>
 
-        {/* Five equal option cards, fixed order */}
-        <ul className="mt-5 flex flex-col gap-2.5">
-          {c.results.map((r) => (
-            <li key={r.id}>
-              <OptionCard
-                result={r}
-                byLabel={c.byLabel}
-                goal={c.goalTarget && c.goalName ? { target: c.goalTarget, name: c.goalName } : null}
-                onChoose={() => choose(r.id)}
-                invalid={r.id === "lower" && !lowerOk ? `Enter ₹${sip.minAmount} to ₹${sip.monthlyAmount - 1}` : null}
-                extra={
-                  r.id === "pause" ? (
-                    <PauseSelector value={pauseMonths} onChange={(m) => dispatch({ type: "setComparePause", months: m })} />
-                  ) : r.id === "lower" ? (
-                    <LowerInput
-                      value={lowerInput}
-                      onChange={(v) => dispatch({ type: "setCompareLower", value: v })}
-                      error={!lowerOk}
-                    />
-                  ) : null
-                }
-              />
-            </li>
-          ))}
-        </ul>
-
-        {/* Bar chart: total put in by month 12, one neutral colour, value at the end of each bar */}
-        <section className="mt-6" aria-labelledby="compare-chart">
+        {/* Bar chart first: total put in by month 12, one neutral colour, value at the end of each bar */}
+        <section className="mt-5" aria-labelledby="compare-chart">
           <h2 id="compare-chart" className="text-[15px] font-medium text-ink">
             Total put in by {c.byLabel}
           </h2>
-          <ul className="mt-3 flex flex-col gap-2.5" role="list">
+          <ul className="mt-3 flex flex-col gap-2.5">
             {c.results.map((r) => {
               const ok = r.id !== "lower" || lowerOk;
               const pct = ok && max > 0 ? (r.totalPutIn / max) * 100 : 0;
@@ -118,22 +96,49 @@ export default function CompareScreen() {
               );
             })}
           </ul>
+          <p className="mt-3 text-[12px] leading-snug text-ink-3">
+            Based only on money you put in. Doesn&apos;t include market returns, which can go up or down. Information
+            only, not investment advice.
+          </p>
         </section>
 
-        <p className="mt-4 text-[12px] leading-snug text-ink-3">
-          Based only on money you put in. Doesn&apos;t include market returns, which can go up or down. Information only,
-          not investment advice.
-        </p>
+        {/* Five compact, equal option cards, fixed order */}
+        <ul className="mt-5 flex flex-col gap-2.5">
+          {c.results.map((r) => (
+            <li key={r.id}>
+              <OptionCard
+                result={r}
+                byLabel={c.byLabel}
+                goal={goal}
+                onChoose={() => choose(r.id)}
+                invalid={r.id === "lower" && !lowerOk ? `Enter ₹${sip.minAmount} to ₹${sip.monthlyAmount - 1}` : null}
+                control={
+                  r.id === "pause" ? (
+                    <PauseSelector value={pauseMonths} onChange={(m) => dispatch({ type: "setComparePause", months: m })} />
+                  ) : r.id === "lower" ? (
+                    <LowerInput
+                      value={lowerInput}
+                      onChange={(v) => dispatch({ type: "setCompareLower", value: v })}
+                      error={!lowerOk}
+                    />
+                  ) : null
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
 
+      {/* "Explain this" pinned at the bottom, always visible */}
+      <div className="shrink-0 border-t border-line-soft bg-white px-4 pt-2.5" style={{ paddingBottom: device.safeBottom + 8 }}>
         <button
           type="button"
           disabled={!lowerOk}
           onClick={() => dispatch({ type: "openGr1", from: "compare", ask: EXPLAIN_QUESTION })}
-          className="mt-4 flex h-11 items-center justify-center gap-2 rounded-lg border border-line text-[15px] font-medium text-ink hover:bg-[#fafafa] disabled:text-ink-3"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-line text-[15px] font-medium text-ink hover:bg-[#fafafa] disabled:text-ink-3"
         >
           <Gr1Swirl size={18} /> Explain this
         </button>
-        <div style={{ height: device.safeBottom + 28 }} aria-hidden />
       </div>
     </div>
   );
@@ -144,29 +149,46 @@ function OptionCard({
   byLabel,
   goal,
   onChoose,
-  extra,
+  control,
   invalid,
 }: {
   result: CompareResult;
   byLabel: string;
   goal: { target: number; name: string } | null;
   onChoose: () => void;
-  extra: ReactNode;
+  control: ReactNode;
   invalid: string | null;
 }) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border border-line">
-      <button type="button" onClick={onChoose} className="flex w-full items-start gap-3 px-[15px] py-3 text-left hover:bg-[#fafafa]">
+      <button type="button" onClick={onChoose} className="flex w-full items-start gap-3 px-[15px] pb-1 pt-2.5 text-left hover:bg-[#fafafa]">
         <span className="min-w-0 flex-1">
           <span className="block text-[15px] font-medium text-ink">{result.label}</span>
           {invalid ? (
-            <span className="mt-1 block text-[13px] text-error">{invalid}</span>
+            <span className="mt-0.5 block text-[13px] text-error">{invalid}</span>
           ) : (
-            <span className="mt-1 block text-[13px] leading-relaxed text-ink-2">
-              {instalmentsText(result.instalments)} in the next 12 months
-              <br />
-              <b className="font-medium text-ink">{formatRupees(result.totalPutIn)}</b> put in by {byLabel}
-              <br />
+            <span className="mt-0.5 block text-[13px] text-ink-2">
+              <b className="font-medium text-ink">{formatRupees(result.totalPutIn)}</b> put in by {byLabel} ·{" "}
+              {instalmentsText(result.instalments)}
+            </span>
+          )}
+        </span>
+        <ChevronRight size={18} className="mt-0.5 shrink-0 text-ink-2" aria-hidden />
+      </button>
+
+      {!invalid && (
+        <div className="px-[15px] pb-2">
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            className="flex items-center gap-1 text-[12px] font-medium text-ink-2 hover:text-ink"
+          >
+            Details <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+          </button>
+          {open && (
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-2">
               SIP running in {byLabel}: {result.runningAtMonth12 ? "Yes" : "No"}
               {goal && (
                 <>
@@ -174,12 +196,12 @@ function OptionCard({
                   {formatRupees(result.totalPutIn)} of {formatRupees(goal.target)} towards {goal.name}
                 </>
               )}
-            </span>
+            </p>
           )}
-        </span>
-        <ChevronRight size={18} className="mt-0.5 shrink-0 text-ink-2" aria-hidden />
-      </button>
-      {extra && <div className="border-t border-line-soft px-[15px] py-2.5">{extra}</div>}
+        </div>
+      )}
+
+      {control && <div className="border-t border-line-soft px-[15px] py-2">{control}</div>}
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default function DeviceFrame({ kind, children, overlay }: Props) {
 
   const screen = (
     <div
-      className="relative overflow-hidden bg-white"
+      className="phone-screen relative overflow-hidden bg-white"
       style={{
         width: spec.screenWidth,
         height: spec.screenHeight,
