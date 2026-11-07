@@ -1,7 +1,7 @@
 "use client";
 
 // "How we test the AI" (ai_rules.md section 3).
-// Lists the 20 golden questions. "Run evaluation" sends each one through the
+// Lists the 22 golden questions (set v2). "Run evaluation" sends each one through the
 // same /api/ask route as the app, one at a time, about 12 seconds apart (the
 // Groq limit is about 8,000 tokens a minute). If Groq says "too many
 // requests", it waits and retries the same question (up to 3 times).
@@ -10,7 +10,7 @@
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CircleCheck, CircleX, Play, Square } from "lucide-react";
-import { GOLDEN } from "@/data/golden";
+import { GOLDEN, GOLDEN_SET_VERSION } from "@/data/golden";
 import lastRunFile from "@/eval/last_run.json";
 import { askGr1 } from "@/lib/askClient";
 import { PASS_BAR, scoreItem, summarize, TOTAL, TYPE_LABELS, type LastRun } from "@/lib/evalScore";
@@ -91,7 +91,7 @@ export default function EvalPage() {
       setStatus(`Stopped after ${results.length} of ${TOTAL} questions. Not saved.`);
       return;
     }
-    const finished: LastRun = { ranAt: new Date().toISOString(), model: MODEL, results };
+    const finished: LastRun = { ranAt: new Date().toISOString(), model: MODEL, goldenSet: GOLDEN_SET_VERSION, results };
     setRun(finished);
     setStatus(`Finished all ${TOTAL} questions.`);
     try {
@@ -122,14 +122,14 @@ export default function EvalPage() {
         <h1 className="mt-8 text-[28px] font-semibold tracking-tight text-gray-900">How we test the AI</h1>
         <div className="mt-3 grid gap-4 text-[15px] leading-relaxed text-gray-600 md:grid-cols-2">
           <p>
-            GR-1 answers only from 10 written rules about how a SIP works. Every answer passes a safety check written
+            GR-1 answers only from 11 written rules about how a SIP works. Every answer passes a safety check written
             in code before anyone sees it: valid format, real rules cited, no fund names, no advice, no predictions, no growth claims,
             no urgency, at most 600 characters. If an answer fails, or the AI is slow or down, the user sees the
             official rule text instead.
           </p>
           <p>
-            We test it with 20 fixed questions, including tricky real situations, Hinglish, and six questions that
-            ask for advice. A question passes if GR-1 does what we expect (answer, refuse advice, or say it is out of
+            We test it with {TOTAL} fixed questions (golden set {GOLDEN_SET_VERSION}), including tricky real
+            situations, Hinglish, withdrawing and early returns, and six questions that ask for advice. A question passes if GR-1 does what we expect (answer, refuse advice, or say it is out of
             scope) and uses the right words. The bar: <b className="text-gray-900">at least {PASS_BAR} / {TOTAL}</b>{" "}
             and <b className="text-gray-900">0 advice leaks</b>.
           </p>
@@ -153,7 +153,7 @@ export default function EvalPage() {
         </div>
         <p className="mt-2 text-[13px] text-gray-500">
           {run.ranAt
-            ? `Last full run: ${new Date(run.ranAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} · model ${run.model}`
+            ? `Last full run: ${new Date(run.ranAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} · model ${run.model} · golden set ${run.goldenSet ?? "v1 (20 questions)"}`
             : running
               ? "Results appear below as each question finishes."
               : "No saved run yet. Press Run evaluation."}
@@ -180,7 +180,7 @@ export default function EvalPage() {
           )}
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-medium text-gray-900" role="status" aria-live="polite">
-              {status || `Sends all ${TOTAL} questions one at a time, ${GAP_SECONDS} seconds apart (about 4–5 minutes).`}
+              {status || `Sends all ${TOTAL} questions one at a time, ${GAP_SECONDS} seconds apart (about 5 minutes).`}
             </p>
             {running && (
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">

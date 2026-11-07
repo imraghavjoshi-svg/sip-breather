@@ -1,20 +1,20 @@
 "use client";
 
-// Screen 5: Lower the amount. Big amount + on-screen keypad (whole rupees, no
-// "." key). Inline messages: below the minimum, or not lower than now.
+// Lower the amount (opened by "Change amount/date" on SIP details), in classic
+// Groww's style. Big amount + on-screen keypad (whole rupees, no "." key).
+// Inline messages: below the minimum, or not lower than now. When reached
+// from "Choose your reason to cancel", a "Cancel instead" link is shown.
 // The computer keyboard also works (digits and Backspace).
 
 import { useEffect } from "react";
-import { Delete } from "lucide-react";
 import { getSip } from "@/data/sips";
-import { currentScreen, useDemo } from "@/lib/demoState";
+import { currentScreen, inCancelPath, useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import { checkNewAmount, formatRupees, MAX_AMOUNT_DIGITS, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
 import { Disclaimer, ScreenHeader } from "../phone/parts";
-import { PrimaryButton } from "../phone/Sheet";
-
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "back"] as const;
+import { Keypad } from "../phone/Keypad";
+import { PrimaryButton, TextButton } from "../phone/Sheet";
 
 export default function LowerAmountScreen() {
   const { state, dispatch } = useDemo();
@@ -56,47 +56,30 @@ export default function LowerAmountScreen() {
 
       <div className="flex flex-1 flex-col items-center justify-center px-6">
         <p
-          className="flex items-center text-[64px] font-bold leading-none tracking-tight"
+          className="flex h-[52px] items-center text-[44px] font-medium leading-none"
           aria-label={input ? `New amount ${formatRupees(Number(input))}` : "No amount entered"}
         >
-          <span className={input ? "text-gray-900" : "text-gray-300"}>
-            ₹{input ? Number(input).toLocaleString("en-IN") : "0"}
-          </span>
-          <span className="ml-1 h-[60px] w-[3px] animate-pulse rounded-full bg-accent" aria-hidden />
+          <span className={input ? "text-ink" : "text-ink-3"}>₹{input ? Number(input).toLocaleString("en-IN") : "0"}</span>
+          <span className="ml-0.5 h-[43px] w-[2px] animate-pulse bg-button" aria-hidden />
         </p>
-        <p className="mt-4 min-h-[22px] text-center text-[15px] font-medium text-error" role="status">
+        <p className="mt-4 min-h-[20px] text-center text-[13px] text-loss" role="status">
           {error ?? ""}
         </p>
         {!error && (
-          <p className="text-center text-[14px] text-gray-500">
-            From {formatRupees(sip.minAmount)}. Your SIP stays active.
-          </p>
+          <p className="text-center text-[14px] text-ink-2">From {formatRupees(sip.minAmount)}. Your SIP stays active.</p>
         )}
       </div>
 
-      <div className="grid grid-cols-3 px-4" role="group" aria-label="Keypad">
-        {KEYS.map((k) =>
-          k === "" ? (
-            <span key="blank" aria-hidden />
-          ) : (
-            <button
-              key={k}
-              type="button"
-              onClick={() => press(k)}
-              aria-label={k === "back" ? "Delete" : k}
-              className="flex h-[64px] items-center justify-center rounded-xl text-[28px] font-semibold text-gray-900 active:bg-gray-100 hover:bg-gray-50"
-            >
-              {k === "back" ? <Delete size={28} /> : k}
-            </button>
-          ),
-        )}
-      </div>
+      <Keypad onPress={press} />
 
-      <div className="px-5 pt-3">
+      <div className="px-4 pt-2">
         <PrimaryButton disabled={!ok} onClick={() => dispatch({ type: "go", screen: "lowerConfirm" })}>
           Continue
         </PrimaryButton>
-        <Disclaimer className="mt-3" />
+        {inCancelPath(state) && (
+          <TextButton onClick={() => dispatch({ type: "go", screen: "cancelConfirm" })}>Cancel instead</TextButton>
+        )}
+        <Disclaimer className={inCancelPath(state) ? "mt-1" : "mt-3"} />
         <div style={{ height: device.safeBottom + 8 }} aria-hidden />
       </div>
     </div>

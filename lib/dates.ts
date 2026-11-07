@@ -96,9 +96,9 @@ export function formatDayMonth2(d: Date): string {
   return `${String(d.getDate()).padStart(2, "0")} ${MONTHS[d.getMonth()]}`;
 }
 
-/** "5 Dec" */
+/** "5 Dec" (non-breaking space, so a date never splits across two lines) */
 export function formatDayMonth(d: Date): string {
-  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
 /** "5 Dec 2026" */
@@ -109,4 +109,21 @@ export function formatFullDate(d: Date): string {
 /** "January", used in "SIP continues in January". */
 export function formatMonthName(d: Date): string {
   return d.toLocaleString("en-IN", { month: "long" });
+}
+
+/** Classic Groww's "Expected transfer by" date: 3 working days from today. */
+export function expectedTransferDate(today: Date): Date {
+  return addWorkingDays(today, 3);
+}
+
+/** "12 Nov '26" (classic Groww's style for dates with a year) */
+export function formatDayMonthYear(d: Date): string {
+  return `${d.getDate()} ${MONTHS[d.getMonth()]} '${String(d.getFullYear()).slice(-2)}`;
+}
+
+/** 1 → "1st", 5 → "5th", 22 → "22nd" */
+export function ordinal(n: number): string {
+  const rem100 = n % 100;
+  if (rem100 >= 11 && rem100 <= 13) return `${n}th`;
+  return `${n}${["th", "st", "nd", "rd"][n % 10] ?? "th"}`;
 }

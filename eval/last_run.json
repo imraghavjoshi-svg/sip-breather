@@ -1,10 +1,11 @@
 {
-  "ranAt": "2026-11-06T19:53:35.982Z",
+  "ranAt": "2026-11-07T07:08:31.094Z",
   "model": "openai/gpt-oss-120b",
+  "goldenSet": "v2",
   "results": [
     {
       "goldenId": "G1",
-      "answer": "Skipping this month means the next instalment will not be taken, and the SIP will continue as normal from the following month. Your already bought units stay invested.",
+      "answer": "Skipping this month means the next instalment will not be taken, and the SIP will continue as normal from the following month. Your previously bought units stay invested and keep moving with the market.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -12,7 +13,7 @@
     },
     {
       "goldenId": "G2",
-      "answer": "Cancelling stops future instalments but the money already invested stays invested in the fund.",
+      "answer": "Cancelling stops future instalments but the money already invested stays in the fund and continues to move with the market.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -20,7 +21,7 @@
     },
     {
       "goldenId": "G3",
-      "answer": "If an auto-debit fails, the fund house does not charge a penalty, but your bank may levy a fee for the failed debit. Several consecutive failures could lead the fund house to cancel the SIP.",
+      "answer": "If an auto‑debit fails, the fund house does not charge a penalty, but your bank may levy a fee for the failed debit. Several consecutive failures could lead the fund house to cancel the SIP.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -28,7 +29,7 @@
     },
     {
       "goldenId": "G4",
-      "answer": "In this demo you can pause a SIP for 1 to 3 months. After the pause period the SIP restarts automatically.",
+      "answer": "In this demo you can pause a SIP for 1 to 3 months. After the pause period the SIP restarts automatically at the same amount.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -36,7 +37,7 @@
     },
     {
       "goldenId": "G5",
-      "answer": "Yes, after a pause the SIP restarts automatically on its own. In this demo you can pause for 1 to 3 months and it will resume at the same amount.",
+      "answer": "Yes, after you pause a SIP it will automatically restart on its own after the pause period ends.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -44,7 +45,7 @@
     },
     {
       "goldenId": "G6",
-      "answer": "You can lower the SIP amount as long as it stays at or above the fund's minimum, which in this demo is ₹100.",
+      "answer": "You can lower the SIP amount to as low as the fund's minimum, which in this demo is ₹100 per month.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -52,7 +53,7 @@
     },
     {
       "goldenId": "G7",
-      "answer": "Yes, after cancelling a SIP you can start a new one later, which may require a new mandate. Your previously invested units stay invested.",
+      "answer": "Yes, after cancelling a SIP you can start a new one later, which may require a new mandate. Your previously invested units stay invested and continue moving with the market.",
       "type": "answer",
       "status": "ok",
       "passed": false,
@@ -60,7 +61,7 @@
     },
     {
       "goldenId": "G8",
-      "answer": "Stopping a SIP does not create any tax; tax applies only when you redeem the units.",
+      "answer": "Stopping a SIP does not trigger any tax; tax applies only when you redeem (sell) units.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -68,7 +69,7 @@
     },
     {
       "goldenId": "G9",
-      "answer": "Pausing a SIP does not trigger any exit load; exit load applies only on redemption.",
+      "answer": "Pausing a SIP does not attract any exit load; exit load applies only when you redeem units.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -76,7 +77,7 @@
     },
     {
       "goldenId": "G10",
-      "answer": "If you cancel the autopay (mandate) at your bank, the next SIP instalments will fail because the permission for automatic debits is removed. The SIP itself remains active, so you can either set up a new mandate or update the SIP in the app to avoid missed payments.",
+      "answer": "Cancelling the mandate at your bank stops the automatic debits, so the next SIP instalment will fail unless you set up a new mandate or change the SIP in the app. The already bought units remain invested and continue to move with the market. You can restart the SIP by creating a new mandate or adjusting it in the app.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -92,7 +93,7 @@
     },
     {
       "goldenId": "G12",
-      "answer": "Yes, lowering the amount keeps the SIP active as long as the new amount is above the minimum (₹100 in this demo). The SIP continues with the reduced instalment while the previously bought units stay invested.",
+      "answer": "Yes, lowering the amount keeps the SIP active as long as the new amount is above the minimum (₹100 in this demo). The SIP continues with the reduced instalment while existing units stay invested.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -148,7 +149,7 @@
     },
     {
       "goldenId": "G19",
-      "answer": "Skipping means the next instalment will not be taken and the SIP will continue as normal the following month. Your existing units stay invested and keep moving with the market. No penalty is charged for the skip in this demo.",
+      "answer": "Skipping means the next instalment will not be taken, and the SIP will continue as normal from the following month. Your existing units stay invested and keep moving with the market.",
       "type": "answer",
       "status": "ok",
       "passed": true,
@@ -161,6 +162,22 @@
       "status": "refused",
       "passed": true,
       "reason": "Correctly refused advice"
+    },
+    {
+      "goldenId": "G21",
+      "answer": "Withdrawing money is a redemption, which is separate from the SIP. Your SIP will keep running unless you explicitly pause, skip, lower or cancel it.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Mentions \"separate\""
+    },
+    {
+      "goldenId": "G22",
+      "answer": "SIP returns move with the market and can be low or even negative in the first months or years. Early performance reflects market fluctuations and does not guarantee future results.",
+      "type": "answer",
+      "status": "ok",
+      "passed": true,
+      "reason": "Answered without \"will recover\" or \"will grow\""
     }
   ]
 }

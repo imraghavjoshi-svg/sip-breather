@@ -1,5 +1,5 @@
 // Sample numbers for Groww's existing Dashboard (PM-approved, 7 Nov).
-// Returns appear ONLY on Groww's existing screens (Dashboard, For you).
+// Returns appear ONLY on Groww's existing screens (Explore, Dashboard).
 //
 // They add up:
 //   invested       ₹3,000 + ₹4,000 = ₹7,000  (from the SIPs: amount × instalments)
@@ -22,3 +22,6 @@ export function getHolding(sipId: string): Holding {
   if (!h) throw new Error(`No holding for ${sipId}`);
   return h;
 }
+
+/** Sample XIRR per fund, shown on the Dashboard rows only (classic Groww's "<> XIRR" view). */
+export const FUND_XIRR: Record<string, string> = { sip_flexi: "6.34%", sip_mid: "5.92%" };

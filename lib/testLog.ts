@@ -1,27 +1,31 @@
-// Test log: one row each time a demo run reaches a Done screen (SIP option
-// confirmed, or redemption placed).
+// Test log: one row each time a demo run finishes: a Done screen (skip,
+// pause, lower, cancel), "Redemption placed", or a skip confirmed on SIP
+// details (which has no Done screen).
 // Kept only in this browser (localStorage). Every storage call is wrapped in
 // try/catch so the app keeps working if storage is blocked; in that case rows
 // are kept in memory until the page is closed.
+//
+// Columns changed with the classic redesign (7 Nov), so rows use a new
+// storage key; rows saved before that stay in the old key and are not shown.
 
-import type { CancelReason, Decision, DecisionOption, DeviceKind, OptionsEntry } from "./types";
+import type { CancelReason, DeviceKind, Entry, FinalChoice, PauseMonths } from "./types";
 
 export type TestLogRow = {
   time: string; // ISO timestamp
   device: DeviceKind;
-  option: DecisionOption | "redeem";
-  /** Where SIP options were reached from: redeem sheet, Cancel SIP, or Edit SIP. */
-  entry?: OptionsEntry;
-  pauseMonths?: 1 | 2 | 3;
-  newAmount?: number;
+  /** Where the run started: redeem flow, Cancel SIP, or SIP details. */
+  entry: Entry;
+  /** Reason picked on "Choose your reason to cancel this SIP" (cancel path only). */
   cancelReason?: CancelReason;
+  /** What the run ended with. */
+  finalChoice: FinalChoice;
+  pauseMonths?: PauseMonths;
+  newAmount?: number;
   redeemAmount?: number;
   gr1Questions: number;
-  /** The Smart Redeem intro sheet was shown in this run (rows saved before 7 Nov have no value). */
-  smartRedeemSeen?: boolean;
 };
 
-const STORAGE_KEY = "sipBreather.testLog.v1";
+const STORAGE_KEY = "sipBreather.testLog.v2";
 let memoryRows: TestLogRow[] = [];
 
 export function readTestLog(): TestLogRow[] {
@@ -53,17 +57,39 @@ export function clearTestLog(): void {
   }
 }
 
+export const ENTRY_LABELS: Record<Entry, string> = {
+  redeem: "Redeem",
+  cancel: "Cancel SIP",
+  sip_details: "SIP details",
+};
+
+export const REASON_LABELS: Record<CancelReason, string> = {
+  returns: "Not satisfied with returns",
+  withdraw: "Want to withdraw money",
+  pause: "Want to pause investing",
+  change: "Want to change SIP amount/date",
+  goal: "Goal is completed",
+  other: "Other reason to cancel",
+};
+
+export const CHOICE_LABELS: Record<FinalChoice, string> = {
+  redeem_only: "Redeem only",
+  skip: "Skip",
+  pause: "Pause",
+  lower: "Lower",
+  cancel: "Cancel",
+};
+
 const CSV_COLUMNS = [
   "time",
   "device",
-  "option",
   "entry",
+  "cancel_reason",
+  "final_choice",
   "pause_months",
   "new_amount",
-  "cancel_reason",
   "redeem_amount",
   "gr1_questions",
-  "smart_redeem_seen",
 ] as const;
 
 function csvCell(value: string | number | undefined): string {
@@ -85,57 +111,16 @@ export function testLogToCsv(rows: TestLogRow[]): string {
     [
       localTime(r.time),
       DEVICE_NAMES[r.device] ?? r.device,
-      r.option,
       r.entry,
+      r.cancelReason,
+      r.finalChoice,
       r.pauseMonths,
       r.newAmount,
-      r.cancelReason,
       r.redeemAmount,
       r.gr1Questions,
-      r.smartRedeemSeen === undefined ? undefined : r.smartRedeemSeen ? "yes" : "no",
     ]
       .map(csvCell)
       .join(","),
   );
   return [CSV_COLUMNS.join(","), ...lines].join("\n");
-}
-
-/** Builds the row saved when a SIP option is confirmed. */
-export function testLogRowFor(
-  decision: Decision,
-  device: DeviceKind,
-  entry: OptionsEntry,
-  gr1Questions: number,
-  smartRedeemSeen: boolean,
-): TestLogRow {
-  const row: TestLogRow = {
-    time: new Date().toISOString(),
-    device,
-    option: decision.option,
-    entry,
-    gr1Questions,
-    smartRedeemSeen,
-  };
-  if (decision.pauseMonths) row.pauseMonths = decision.pauseMonths;
-  if (decision.newAmount) row.newAmount = decision.newAmount;
-  if (decision.cancelReason) row.cancelReason = decision.cancelReason;
-  return row;
-}
-
-/** Builds the row saved when a redemption is placed. */
-export function redeemLogRow(
-  amount: number,
-  device: DeviceKind,
-  gr1Questions: number,
-  smartRedeemSeen: boolean,
-): TestLogRow {
-  return {
-    time: new Date().toISOString(),
-    device,
-    option: "redeem",
-    entry: "redeem",
-    redeemAmount: amount,
-    gr1Questions,
-    smartRedeemSeen,
-  };
 }

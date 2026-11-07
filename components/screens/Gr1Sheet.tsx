@@ -1,18 +1,20 @@
 "use client";
 
-// Screen 6: GR-1 assistant bottom sheet.
-// Chip "YOUR SIP", 3 suggested questions, the chat, and the input.
+// GR-1 assistant bottom sheet (NEW), in classic Groww's style.
+// Chip "YOUR SIP", suggested questions that depend on where GR-1 was opened
+// from (redeem sheet, returns answer, anywhere else), the chat, and the input.
 // Under every answer: "Based on: <rule title>", the Sources line, and
 // "Information only, not investment advice."
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { CornerDownRight, LoaderPinwheel, SendHorizontal, SquarePen, X } from "lucide-react";
+import { CornerDownRight, LoaderCircle, SendHorizontal, SquarePen, X } from "lucide-react";
 import { getRule, SOURCES } from "@/data/rules";
 import { SUGGESTED_QUESTIONS } from "@/data/golden";
 import { askGr1 } from "@/lib/askClient";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import { FALLBACK_LABEL } from "@/lib/gr1";
+import { Gr1Swirl, NewTag } from "../phone/parts";
 import type { ChatMessage } from "@/lib/types";
 
 const MAX_QUESTION_LENGTH = 300;
@@ -21,6 +23,7 @@ export default function Gr1Sheet() {
   const { state, dispatch, settings } = useDemo();
   const device = useDevice();
   const [draft, setDraft] = useState("");
+  const suggestions = SUGGESTED_QUESTIONS[state.gr1From];
   const [pending, setPending] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,28 +73,27 @@ export default function Gr1Sheet() {
         aria-label="Close GR-1"
         tabIndex={-1}
         onClick={() => dispatch({ type: "closeGr1" })}
-        className="absolute inset-0 bg-black/45"
+        className="absolute inset-0 bg-black/[0.33]"
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label="GR-1 assistant"
-        className="relative flex h-[86%] flex-col overflow-hidden rounded-t-[28px] bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.18)]"
+        className="relative flex h-[86%] flex-col overflow-hidden rounded-t-2xl bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.18)]"
       >
-        <div className="mx-auto mt-3 h-1 w-10 shrink-0 rounded-full bg-gray-300" aria-hidden />
-
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between px-5 pb-2 pt-3">
-          <div className="flex items-center gap-2.5">
-            <LoaderPinwheel size={26} className="text-gray-900" aria-hidden />
-            <span className="text-[24px] font-bold tracking-tight text-gray-900">GR-1</span>
+        <div className="flex shrink-0 items-center justify-between px-4 pb-2 pt-4">
+          <div className="flex items-center gap-2.5 text-ink">
+            <Gr1Swirl size={24} />
+            <span className="text-[20px] font-medium">GR-1</span>
+            <NewTag />
           </div>
-          <div className="flex items-center gap-1 text-gray-700">
+          <div className="flex items-center gap-1 text-ink-2">
             <button
               type="button"
               onClick={() => dispatch({ type: "newChat" })}
               aria-label="New chat"
-              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100"
+              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-line-soft"
             >
               <SquarePen size={21} />
             </button>
@@ -99,7 +101,7 @@ export default function Gr1Sheet() {
               type="button"
               onClick={() => dispatch({ type: "closeGr1" })}
               aria-label="Close"
-              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-100"
+              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-line-soft"
             >
               <X size={22} />
             </button>
@@ -107,28 +109,28 @@ export default function Gr1Sheet() {
         </div>
 
         {/* Chip, suggestions, chat */}
-        <div className="flex-1 overflow-y-auto px-5 pb-4" aria-live="polite">
-          <span className="mt-1 inline-block rounded-full border border-gray-300 px-3.5 py-1 text-[12px] font-bold uppercase tracking-[0.12em] text-gray-600">
+        <div className="flex-1 overflow-y-auto px-4 pb-4" aria-live="polite">
+          <span className="mt-1 inline-block rounded-full border border-line px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-ink-2">
             Your SIP
           </span>
-          <SuggestedQuestions onAsk={ask} disabled={pending} className="mt-3" />
+          <SuggestedQuestions questions={suggestions} onAsk={ask} disabled={pending} className="mt-3" />
 
           <div className="mt-5 flex flex-col gap-5">
             {state.chat.map((m, i) =>
               m.role === "user" ? (
                 <p
                   key={i}
-                  className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-gray-100 px-4 py-3 text-[16px] text-gray-900"
+                  className="ml-auto max-w-[85%] rounded-2xl rounded-tr-md bg-line-soft px-4 py-2.5 text-[15px] text-ink"
                 >
                   {m.text}
                 </p>
               ) : (
-                <AssistantMessage key={i} message={m} onAsk={ask} disabled={pending} />
+                <AssistantMessage key={i} message={m} questions={suggestions} onAsk={ask} disabled={pending} />
               ),
             )}
             {pending && (
-              <p className="flex items-center gap-2 text-[15px] text-gray-500" role="status">
-                <LoaderPinwheel size={18} className="animate-spin text-accent" aria-hidden /> GR-1 is thinking…
+              <p className="flex items-center gap-2 text-[14px] text-ink-2" role="status">
+                <LoaderCircle size={17} className="animate-spin text-accent-text" aria-hidden /> GR-1 is thinking…
               </p>
             )}
           </div>
@@ -145,7 +147,7 @@ export default function Gr1Sheet() {
         >
           <form
             onSubmit={onSubmit}
-            className="flex items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-5 pr-1.5 shadow-sm focus-within:border-accent"
+            className="flex items-center gap-2 rounded-full border border-line bg-white py-1.5 pl-5 pr-1.5 shadow-sm focus-within:border-accent"
           >
             <input
               ref={inputRef}
@@ -154,18 +156,18 @@ export default function Gr1Sheet() {
               maxLength={MAX_QUESTION_LENGTH}
               placeholder="Ask GR-1 about your SIP"
               aria-label="Ask GR-1 about your SIP"
-              className="min-w-0 flex-1 bg-transparent py-2 text-[16px] text-gray-900 caret-accent outline-none placeholder:text-gray-400"
+              className="min-w-0 flex-1 bg-transparent py-2 text-[15px] text-ink caret-accent outline-none placeholder:text-ink-3"
             />
             <button
               type="submit"
               disabled={!draft.trim() || pending}
               aria-label="Send"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-button text-white transition-colors hover:bg-button-hover disabled:bg-gray-100 disabled:text-gray-400"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-button text-white transition-colors hover:bg-button-hover disabled:bg-button-disabled disabled:text-button-disabled-text"
             >
               <SendHorizontal size={18} />
             </button>
           </form>
-          <p className="mt-1.5 text-center text-[11px] text-gray-400">Information only, not investment advice.</p>
+          <p className="mt-1.5 text-center text-[11px] text-ink-3">Information only, not investment advice.</p>
         </div>
       </div>
     </div>
@@ -173,25 +175,27 @@ export default function Gr1Sheet() {
 }
 
 function SuggestedQuestions({
+  questions,
   onAsk,
   disabled,
   className = "",
 }: {
+  questions: string[];
   onAsk: (q: string) => void;
   disabled: boolean;
   className?: string;
 }) {
   return (
     <ul className={`flex flex-col gap-1 ${className}`}>
-      {SUGGESTED_QUESTIONS.map((q) => (
+      {questions.map((q) => (
         <li key={q}>
           <button
             type="button"
             disabled={disabled}
             onClick={() => onAsk(q)}
-            className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left text-[16px] text-gray-800 hover:text-accent-text disabled:opacity-60"
+            className="flex w-full items-start gap-2.5 rounded-lg py-1.5 text-left text-[15px] text-ink hover:text-accent-text disabled:opacity-60"
           >
-            <CornerDownRight size={16} className="mt-1 shrink-0 text-gray-400" aria-hidden />
+            <CornerDownRight size={16} className="mt-0.5 shrink-0 text-ink-3" aria-hidden />
             {q}
           </button>
         </li>
@@ -202,10 +206,12 @@ function SuggestedQuestions({
 
 function AssistantMessage({
   message,
+  questions,
   onAsk,
   disabled,
 }: {
   message: Extract<ChatMessage, { role: "assistant" }>;
+  questions: string[];
   onAsk: (q: string) => void;
   disabled: boolean;
 }) {
@@ -215,7 +221,7 @@ function AssistantMessage({
   return (
     <div>
       {message.simulated && (
-        <p className="mb-1 w-fit rounded bg-gray-100 px-2 py-0.5 text-[12px] font-medium text-gray-500">
+        <p className="mb-1 w-fit rounded bg-line-soft px-2 py-0.5 text-[12px] font-medium text-ink-2">
           AI failure simulated
         </p>
       )}
@@ -223,19 +229,19 @@ function AssistantMessage({
         <p className="mb-1.5 text-[12px] font-bold uppercase tracking-wide text-accent-text">{FALLBACK_LABEL}</p>
       )}
       <p
-        className={message.notice ? "rounded-xl bg-gray-50 px-4 py-3 text-[15px] leading-relaxed text-gray-600" : "text-[16px] leading-relaxed text-gray-900"}
+        className={message.notice ? "rounded-xl bg-line-soft px-4 py-3 text-[14px] leading-relaxed text-ink-2" : "text-[15px] leading-relaxed text-ink"}
       >
         {message.text}
       </p>
 
-      {message.status === "refused" && !message.notice && <SuggestedQuestions onAsk={onAsk} disabled={disabled} className="mt-2" />}
+      {message.status === "refused" && !message.notice && <SuggestedQuestions questions={questions} onAsk={onAsk} disabled={disabled} className="mt-2" />}
 
       {showRules && (
         <div className="mt-3 flex flex-col gap-1.5">
-          <p className="w-fit rounded-md bg-gray-100 px-2.5 py-1 text-[13px] text-gray-700">
+          <p className="w-fit rounded-md bg-line-soft px-2.5 py-1 text-[13px] text-ink">
             Based on: {titles.join(" · ")}
           </p>
-          <p className="text-[13px] text-gray-500">
+          <p className="text-[13px] text-ink-2">
             Sources:{" "}
             {SOURCES.map((s, i) => (
               <span key={s.url}>
@@ -253,7 +259,7 @@ function AssistantMessage({
           </p>
         </div>
       )}
-      <p className="mt-2 text-[12px] text-gray-400">Information only, not investment advice.</p>
+      <p className="mt-2 text-[12px] text-ink-3">Information only, not investment advice.</p>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export function Keypad({ onPress, allowDecimal = false }: { onPress: (key: strin
             type="button"
             onClick={() => onPress(k)}
             aria-label={k === "back" ? "Delete" : k === "." ? "Decimal point" : k}
-            className="flex h-[60px] items-center justify-center rounded-xl text-[28px] font-medium text-[#44475B] hover:bg-gray-50 active:bg-gray-100"
+            className="flex h-[60px] items-center justify-center rounded-xl text-[28px] font-medium text-ink hover:bg-gray-50 active:bg-gray-100"
           >
             {k === "back" ? <Delete size={28} strokeWidth={1.8} /> : k}
           </button>

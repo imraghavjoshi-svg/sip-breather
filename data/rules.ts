@@ -70,6 +70,13 @@ export const RULES: Rule[] = [
     text: "After a pause the SIP restarts by itself. After cancelling, you start a new SIP, which may need a new mandate.",
     sources: SOURCES,
   },
+  {
+    // Added with the classic redesign (golden set v2, 7 Nov 2026).
+    id: "R11",
+    title: "Short-term returns",
+    text: "SIP returns move with the market and can be low or negative in the first months or years. Past returns don't tell you future returns. Withdrawing money and stopping a SIP are separate decisions.",
+    sources: SOURCES,
+  },
 ];
 
 export const RULE_IDS = RULES.map((r) => r.id);

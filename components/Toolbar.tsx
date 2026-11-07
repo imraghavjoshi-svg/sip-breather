@@ -2,15 +2,15 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { ChevronRight, ClipboardList, FlaskConical, RotateCcw } from "lucide-react";
+import { ChevronRight, ClipboardList, FlaskConical, Info, RotateCcw } from "lucide-react";
 import { DEVICES, DEVICE_ORDER } from "@/lib/device";
 import type { DeviceKind, StepTab, Zoom } from "@/lib/types";
 
 const STEP_TABS: { id: StepTab; label: string }[] = [
   { id: "dashboard", label: "1. Dashboard" },
   { id: "redeem", label: "2. Redeem" },
-  { id: "options", label: "3. SIP options" },
-  { id: "cancel", label: "4. Confirm" },
+  { id: "reasons", label: "3. Cancel reasons" },
+  { id: "answer", label: "4. Reason answer" },
 ];
 const ZOOMS: Zoom[] = [1, 0.9, 0.8];
 
@@ -23,6 +23,7 @@ type Props = {
   onZoom: (z: Zoom) => void;
   onReset: () => void;
   onOpenTestLog: () => void;
+  onOpenAbout: () => void;
   simulateFailure: boolean;
   onSimulateFailure: (on: boolean) => void;
 };
@@ -36,7 +37,7 @@ export default function Toolbar(p: Props) {
           <Image src="/logo.png" alt="Groww" width={800} height={220} priority className="h-[26px] w-auto" />
           <div className="border-l border-gray-200 pl-4 leading-tight">
             <div className="text-[15px] font-semibold text-gray-900">SIP Breather</div>
-            <div className="text-[12px] text-gray-600">Concept: a better Cancel SIP moment</div>
+            <div className="text-[12px] text-gray-600">Concept: two better exits in classic Groww</div>
             <div className="text-[11px] text-gray-400">Concept prototype for a PM case study.</div>
           </div>
         </div>
@@ -79,6 +80,7 @@ export default function Toolbar(p: Props) {
           <FailureSwitch on={p.simulateFailure} onChange={p.onSimulateFailure} />
           <ToolbarButton onClick={p.onReset} icon={<RotateCcw size={14} />} label="Reset" />
           <ToolbarButton onClick={p.onOpenTestLog} icon={<ClipboardList size={14} />} label="Test log" />
+          <ToolbarButton onClick={p.onOpenAbout} icon={<Info size={14} />} label="About" />
           <a
             href="/eval"
             target="_blank"

@@ -1,6 +1,6 @@
 "use client";
 
-// Groww MF home with four working tabs: For you / Dashboard / SIPs / Watchlist.
+// Classic Groww MF home with four working tabs: Explore / Dashboard / SIPs / Watchlist.
 // The logo row scrolls away and the tabs stay pinned at the top, as in Groww.
 
 import { useEffect, useRef } from "react";
@@ -8,7 +8,7 @@ import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import { BottomNav, HeaderBar, HomeTabs } from "../phone/parts";
 import DashboardTab from "./DashboardTab";
-import ForYouTab from "./ForYouTab";
+import ExploreTab from "./ExploreTab";
 import SipsTab from "./SipsTab";
 import WatchlistTab from "./WatchlistTab";
 
@@ -32,7 +32,7 @@ export default function HomeScreen() {
         <div className="sticky z-[4]" style={{ top: 0 }}>
           <HomeTabs tab={state.tab} onTab={(tab) => dispatch({ type: "setTab", tab })} />
         </div>
-        {state.tab === "foryou" && <ForYouTab />}
+        {state.tab === "explore" && <ExploreTab />}
         {state.tab === "dashboard" && <DashboardTab />}
         {state.tab === "sips" && <SipsTab />}
         {state.tab === "watchlist" && <WatchlistTab />}

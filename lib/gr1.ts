@@ -1,4 +1,4 @@
-// Shared GR-1 pieces used by the chat sheet now and by /api/ask in step 10.
+// Shared GR-1 pieces used by the chat sheet and by /api/ask.
 
 import { RULES } from "../data/rules";
 import type { AnswerStatus, ExpectedType, RuleId } from "./types";
@@ -42,6 +42,7 @@ const RULE_KEYWORDS: Record<RuleId, string[]> = {
   R8: ["mandate", "autopay", "auto-debit", "nach", "upi", "bank app"],
   R9: ["tax", "exit load", "load"],
   R10: ["restart", "start again", "again", "resume", "by itself", "later"],
+  R11: ["returns", "return", "low", "negative", "first year", "withdraw", "withdrawing", "separate", "market"],
 };
 
 function escapeRegExp(s: string): string {

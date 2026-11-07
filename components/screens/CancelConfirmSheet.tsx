@@ -1,7 +1,9 @@
 "use client";
 
-// Screen 7: Cancel confirm, over the dimmed options sheet (screen 3).
-// Calm and plain: no guilt, no countdown, no red. Reason is optional.
+// Cancel confirm, restyled to classic Groww. Calm and plain: no guilt, no
+// countdown, no red. No reason chips: the reason was already picked on
+// "Choose your reason to cancel this SIP". "Goal is completed" adds a short
+// congrats line.
 
 import type { ReactNode } from "react";
 import { getSip } from "@/data/sips";
@@ -9,68 +11,33 @@ import { useDemo } from "@/lib/demoState";
 import { formatFullDate, lastInstalment } from "@/lib/dates";
 import { formatRupees, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import type { CancelReason } from "@/lib/types";
 import { PrimaryButton, Sheet, TextButton } from "../phone/Sheet";
 
-const REASONS: { id: CancelReason; label: string }[] = [
-  { id: "money_tight", label: "Money is tight" },
-  { id: "returns", label: "Returns" },
-  { id: "need_money", label: "Need the money" },
-  { id: "other", label: "Other" },
-];
-
-export default function CancelConfirmSheet() {
+export default function CancelConfirmSheet({ stacked = false }: { stacked?: boolean }) {
   const { state, dispatch } = useDemo();
   const today = useToday();
   const sip = getSip(state.sipId);
   const view = sipView(sip, state.decision, today);
-  const chosen = state.draft.cancelReason;
+  const goal = state.draft.cancelReason === "goal";
 
   return (
-    <Sheet label="Cancel SIP" onDismiss={() => dispatch({ type: "back" })} stacked>
-      <p className="text-[15px] text-gray-500">You are cancelling</p>
-      <h2 className="mt-0.5 text-[26px] font-bold tracking-tight text-gray-900">
-        {formatRupees(view.monthlyAmount)} monthly SIP
-      </h2>
-      <p className="mt-2 text-[15px] leading-snug text-gray-600">
+    <Sheet label="Cancel SIP" onDismiss={() => dispatch({ type: "back" })} stacked={stacked}>
+      <p className="text-[15px] text-ink-2">You are cancelling</p>
+      <h2 className="mt-0.5 text-[24px] font-medium text-ink">{formatRupees(view.monthlyAmount)} monthly SIP</h2>
+      {goal && (
+        <p className="mt-3 rounded-lg bg-[#F6FCF9] px-[15px] py-2.5 text-[14px] leading-snug text-ink">
+          Congrats on reaching your goal. Your invested money stays invested until you redeem it.
+        </p>
+      )}
+      <p className="mt-2 text-[14px] leading-snug text-ink-2">
         Your invested money stays invested. Only future instalments stop.
       </p>
 
-      <dl className="mt-4 rounded-2xl border border-gray-200 px-4">
-        <Row label="Invested money" value={<span className="font-semibold text-gray-900">Stays invested</span>} />
+      <dl className="mt-4 rounded-xl border border-line px-[15px]">
+        <Row label="Invested money" value={<span className="font-medium">Stays invested</span>} />
         <Row label="Last instalment" value={formatFullDate(lastInstalment(sip.instalmentDay, today))} />
-        <Row
-          label="Restart"
-          value={<span className="font-semibold text-accent-text">Start a new SIP anytime</span>}
-          last
-        />
+        <Row label="Restart" value={<span className="font-medium text-accent-text">Start a new SIP anytime</span>} last />
       </dl>
-
-      <fieldset className="mt-5">
-        <legend className="text-[13px] font-semibold uppercase tracking-wide text-gray-500">
-          Why are you cancelling? (optional)
-        </legend>
-        <div className="mt-2.5 flex flex-wrap gap-2">
-          {REASONS.map((r) => {
-            const selected = chosen === r.id;
-            return (
-              <button
-                key={r.id}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => dispatch({ type: "toggleCancelReason", reason: r.id })}
-                className={`whitespace-nowrap rounded-full border px-4 py-2 text-[15px] transition-colors ${
-                  selected
-                    ? "border-accent bg-accent-tint font-semibold text-accent-text"
-                    : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {r.label}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
 
       <div className="mt-5 flex flex-col gap-1">
         <PrimaryButton onClick={() => dispatch({ type: "confirm", option: "cancel" })}>Cancel SIP</PrimaryButton>
@@ -82,9 +49,9 @@ export default function CancelConfirmSheet() {
 
 function Row({ label, value, last = false }: { label: string; value: ReactNode; last?: boolean }) {
   return (
-    <div className={`flex items-center justify-between gap-4 py-3.5 ${last ? "" : "border-b border-gray-100"}`}>
-      <dt className="whitespace-nowrap text-[15px] text-gray-600">{label}</dt>
-      <dd className="whitespace-nowrap text-right text-[15px] text-gray-900">{value}</dd>
+    <div className={`flex items-center justify-between gap-4 py-3 ${last ? "" : "border-b border-line-soft"}`}>
+      <dt className="whitespace-nowrap text-[14px] text-ink-2">{label}</dt>
+      <dd className="whitespace-nowrap text-right text-[14px] text-ink">{value}</dd>
     </div>
   );
 }

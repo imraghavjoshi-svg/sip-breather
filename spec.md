@@ -1,26 +1,31 @@
 # SIP Breather: product spec
 
 ## One-liner
-Before you stop your SIP, see every option side by side, and ask anything about what each one means.
+When you withdraw money or try to cancel a SIP, see what each choice means before you decide, and ask anything about it.
 
 ## Who it is for
 First-time mutual fund investors, 22 to 30, in metro cities, in their first year of investing. Started a ₹500 to ₹5,000 monthly SIP, often because a friend or family member suggested it. Income is not settled yet: early career, between jobs, or about to study. They check the app often but do not fully understand how a SIP works, and think of it as all or nothing.
 
 ## The problem
-When money gets tight for a month or two, these investors cancel their SIP for good, sometimes from their bank app. Most do not know they could skip a month, pause, or lower the amount, or that their invested money stays invested whatever they choose. Nothing at the moment of stopping lays out the options plainly, so a short gap turns into a permanent exit.
+When money gets tight for a month or two, these investors cancel their SIP for good, sometimes from their bank app. Most do not know they could skip a month, pause, or lower the amount, or that their invested money stays invested whatever they choose.
+
+Almost everyone uses classic Groww (not MF Prime). Classic Groww already has "Skip" on SIP details and a "Choose your reason to cancel this SIP" screen, so this concept does not copy what exists. It improves the two exits that exist today:
+1. **Redeem:** Groww never mentions the SIP while someone withdraws money.
+2. **Cancel reasons:** Groww asks why, but explains nothing.
 
 ## What we are building
-A web app that shows a phone in the middle of the page. Inside the phone is a concept feature for the Groww app: a better "Cancel SIP" moment. Mentors will open it on a laptop.
+A web app that shows a phone in the middle of the page. Inside the phone is classic Groww's Mutual Funds section with the two improved exits and the GR-1 assistant. Mentors will open it on a laptop. Every new part has a green "New" tag.
 
 ### The page around the phone (desktop toolbar, like a design review tool)
-- Top left: Groww logo, title "SIP Breather", subtitle "Concept: a better Cancel SIP moment".
+- Top left: Groww logo, title "SIP Breather", subtitle "Concept: two better exits in classic Groww", and the small grey line "Concept prototype for a PM case study."
 - Device switch: "iOS" (iPhone Pro Max frame) | "Android" (Pixel 9 frame) | "Frameless".
-- Step tabs: "1. Dashboard" → "2. Redeem" (the "You are redeeming" sheet) → "3. SIP options" (options sheet opened from the redeem sheet) → "4. Confirm" (cancel confirm sheet). Clicking a tab jumps to that screen; tabs 2–4 use a ₹1,000 redemption if no amount was typed.
-- Reset button (restarts the demo, clears the chat; does not clear the test log or the switch below).
-- "Simulate AI failure" switch (off by default): when on, /api/ask skips Groq and returns a failed result, so GR-1 shows the safe fallback ("Here's the official explanation" + rule + sources) with a small grey label "AI failure simulated" above it, so reviewers understand what they see.
-- "Test log" button: a table of test runs with "Download CSV" and "Clear" (see Test log below).
-- Button "How we test the AI" that opens the evaluation page (see ai_rules.md).
+- Step tabs: "1. Dashboard" → "2. Redeem" (the "You are redeeming" sheet with the YOUR SIP card, ₹1,000 from Sample Flexi Cap if no amount was typed) → "3. Cancel reasons" (SIPs → Sample Flexi Cap → Cancel SIP) → "4. Reason answer" (the "Want to withdraw money" answer).
 - Zoom: 100% | 90% | 80%.
+- "Simulate AI failure" switch (off by default): when on, /api/ask skips Groq and returns a failed result, so GR-1 shows the safe fallback ("Here's the official explanation" + rule + sources) with a small grey label "AI failure simulated".
+- Reset (restarts the demo, clears the chat; does not clear the test log or the switch).
+- "Test log": table of test runs with "Download CSV" and "Clear" (see Test log below).
+- "About": a panel: "What's new in this concept: When a first-time investor withdraws money or tries to cancel a SIP, Groww now explains what each choice means instead of only asking why they're leaving." Then "Try it:" with three links that jump to (a) Dashboard → fund → Redeem → the YOUR SIP card, (b) SIPs → Sample Flexi Cap → Cancel SIP → "Want to withdraw money", (c) SIP details → Need help (GR-1). Grey note: "Explore, Dashboard, SIPs and Watchlist recreate classic Groww for context. New parts have a green 'New' tag."
+- "How we test the AI": opens the evaluation page (see ai_rules.md).
 - Light grey page background, the phone centred.
 
 ### Device frames (build these exactly, in code)
@@ -31,63 +36,74 @@ A web app that shows a phone in the middle of the page. Inside the phone is a co
 - The frame must never stretch. Keep these exact proportions at every zoom level.
 
 ## Screens (inside the phone)
-Design reference: `design/android/*/code.html` and `design/ios/*/code.html` (and screen.png where available) for our new SIP screens. Screens copied from the real Groww app follow `design/groww_reference/` as exactly as possible (layout, spacing, placement, font sizes, colours).
+Design reference: the classic Groww screenshots in `design/groww_classic/` (kept out of Git: they contain real names). Layout, spacing, placement, font sizes and colours are copied as exactly as possible; colours were sampled from the screenshots. Sizes are measured from the 575 px wide screenshots and scaled to the 412 px phone.
 
-### A. Groww's existing screens (copied from design/groww_reference)
-The app opens on the Dashboard tab. Header on all four tabs: logo, "MF Prime" with the Prime diamond, search, GR-1 swirl (opens GR-1), avatar. Top tabs For you / Dashboard / SIPs / Watchlist all switch screens; the active tab is bold with a black underline. Bottom nav: Stocks / F&O / Mutual Funds (active) / Loans (shown, not clickable).
+### Main tabs (classic Groww, for context)
+Header on the main tabs: logo icon, "Mutual Funds", search, GR-1 swirl icon (opens GR-1), green avatar "R". Top tabs Explore / Dashboard / SIPs / Watchlist all switch screens; the active tab is dark with a dark underline. Bottom nav: Stocks / F&O / Mutual Funds (active, classic Groww's own blue) / Loans (shown, not clickable). The app opens on Dashboard.
 
-1. Dashboard (groww_dashboard): card "HOLDINGS (2)" with current value ₹7,084, eye and chart icons, dashed divider, rows 1D returns +₹21 (0.3%), Total returns +₹84 (1.2%), Invested ₹7,000, XIRR ˅ 6.10%, then "Redeem" and "Invest more" with diamond icons. Filter icon and "<> Returns (%)". The two sample funds with a grey "SIP" tag and returns on the right (Flexi Cap +₹36 (+1.2%), Midcap +₹48 (+1.2%)); tapping a fund opens its SIP details. "Import external funds." outlined button. No "Best Pick" or "Average" tags.
-2. For you (groww_for_you_1, _2, _3 as one scrollable page): Smart-invest with Prime card (its button says "Start a SIP" instead of Groww's "Get fund recommendations"); "Explore funds" (renamed from "Best Picks by Prime") with 4 sample fund cards and 3Y returns; Collections; All Mutual Funds; Products & tools; About Prime; market-risk disclaimer; About Groww legal block copied exactly. Real fund names replaced with sample names ("Sample Flexi Cap Fund", "Sample Midcap Fund", "Sample Arbitrage Fund", "Sample Small Cap Fund"); no Best Pick / Prime recommends / Average / rating labels ("Best SIP funds" tile renamed "SIP funds", "High return" tile renamed "All categories"). Buttons and cards do nothing and show no error.
-3. Watchlist (groww_watchlist): empty state "Start adding funds to Watchlist", then a list of 5 sample funds with bookmark icons under "Explore funds". No return numbers on this tab.
-4. SIPs: our SIPs tab (screen B1).
-5. Redeem flow (from Dashboard "Redeem"):
-   a. "Enter redeem amount" (groww_redeem_amount / _min_error): "₹7,084 available", big amount, keypad with ".", "How Smart Redeem works" banner (opens the Smart Redeem sheet below), errors "Minimum required is ₹100" and "You can redeem up to ₹7,084", Continue. Every new redemption starts empty.
-   a2. Smart Redeem intro sheet (groww_smart_redeem), over the dimmed amount screen, Groww blue: "PRIME EXCLUSIVE" with a diamond, "Smart Redeem with expert guidance", a bordered box of placeholder cards sliding slowly upwards in a loop (CSS, about 7 seconds; still when the system asks for reduced motion), three rows with light-blue icon circles ("You choose the amount", "We pick the funds to redeem from", "Optimised for tax, exit load, and portfolio balance"), and "Continue". Opens by itself the first time the amount screen opens in a demo run, and every time the banner is tapped. Continue or the dimmed area closes it. The test log records whether it was seen in that run (smart_redeem_seen).
-   b. Summary (groww_redeem_summary): "Redeem ₹X from 1 fund", "REDEMPTION BY [date]" (3 working days after the NAV date), fund row "Sample Flexi Cap Fund Direct Growth – ₹X". Above ₹3,036 (the Flexi Cap value) it becomes "from 2 funds": Flexi Cap in full plus the rest from Midcap. No "Prime recommends", no "Why these funds?", no bank row. Button "Confirm".
-   c. Sheet "You are redeeming ₹X" (groww_redeem_sheet): NAV note, Applicable NAV date (today on a weekday before 3 pm, else the next working day), Exit load (Approx) ₹0.00, Capital gains (LTCG ₹0.00, STCG = gain share of the amount). No bank name or account number.
-   d. NEW, ours (green, calm), above the button: card "YOUR SIP · ₹500 due on 5 Dec. If money's tight this month, you can also skip or pause your SIP. Your invested money stays invested." with text button "See SIP options" that opens the options sheet (B3) for that SIP. Hidden if that SIP is paused or cancelled. Nothing blocks the redemption.
-   e. "Confirm Redeem" → Done: green tick, "Redemption placed. Money usually reaches your bank in 1–3 working days.", the fund(s) and amounts, button "Back to Dashboard". No OTP screen. Holdings on the Dashboard do not change after a redemption (demo).
+1. **Explore** (classic_explore_1/2/3, one scrollable page in the same order): Recently viewed, Popular Funds (2 × 2 cards with 3Y returns), Collections, Products & tools, All Mutual Funds with filter chips, "1,700 funds", "<> 3Y Returns" and a list of 7 funds, View all, About Groww. Sample fund names everywhere and plain coloured "S" squares instead of fund logos; simple drawn icons instead of Groww's illustrations. Removed: "Upgrade to Prime / Get fund recommendations", "Funds by Groww", star ratings. Collection tiles renamed: "High return" → "All categories", "Best SIP funds" → "SIP funds", "5 Star Funds" → "Index funds". Returns numbers may stay (Groww's existing screen). Nothing on this page does anything.
+2. **Dashboard** (classic_dashboard): Holdings card "HOLDINGS (2)", ₹7,084, eye and chart icons, dashed divider, 1D returns +₹21 (0.30%), Total returns +₹84 (1.20%), Invested ₹7,000, XIRR ˅ 6.10%. Filter icon and "<> XIRR". The two sample funds with a grey "SIP" label and a sample XIRR on the right (Flexi Cap 6.34%, Midcap 5.92%). "Import external funds." button. No Redeem / Invest more buttons (classic Groww has none). Tapping a fund opens the fund sheet.
+3. **Fund sheet** (classic_fund_sheet): fund name + "SIP" + current value with a chevron, rows "Redeem" and "Investment details", then "One Time" (light green) and "Start SIP" (green). Only "Redeem" works.
+4. **SIPs** (classic_sips): card "MONTHLY SIP AMOUNT ₹1,500" (active SIPs only), "Active SIPs (2)" with "Sort by: Due date", each row with the "S" square, fund name, amount and a date tile (day + month), sorted by next date. Below: "SIPs cancelled by you" with one sample row "Sample Index Fund Direct Growth · ₹300 · Cancelled on 24 Sep" and a light-green "Restart" button (does nothing). A SIP cancelled in the demo moves to this list ("Cancelled on [today]"). Tapping an active SIP opens SIP details.
+5. **Watchlist** (classic_watchlist): empty state "Start adding funds to Watchlist", then "TRENDING" with 5 sample funds and bookmark icons. No return numbers.
 
-### B. Our new SIP screens (returns-free)
-1. SIPs tab: two SIP cards. Card 1 "Sample Flexi Cap Fund Direct Growth", ₹500 monthly, next instalment, 6 instalments done, chip "Goal: Bike". Card 2 "Sample Midcap Fund Direct Growth", ₹1,000 monthly, 4 instalments done.
-2. SIP details: "₹3,000 invested", monthly amount, next instalment, instalments done, goal progress "₹3,000 of ₹60,000" with a bar. "INSTALMENT HISTORY": last 3 instalments (date, amount, green "Successful" tag) and a "View all" link that does nothing. No returns, NAV or units. Buttons "Edit SIP" (→ Lower the amount) and "Ask GR-1". Grey text link "Cancel SIP".
-3. Options sheet "You have a few options" over the screen it was opened from (SIP details, or the redeem sheet). Label "YOUR ₹3,000 STAYS INVESTED IN EVERY CASE". Four rows of equal weight: Skip next instalment / Pause for 1 to 3 months / Lower the amount / Cancel SIP, each with one grey line. Link "Not sure? Ask GR-1".
-4. Pause: choose 1, 2 or 3 months, see which instalments are skipped, restart date, "We'll remind you 3 days before, with all options again". Button "Confirm pause".
-5. Lower the amount: big amount with keypad (whole rupees), current amount shown, inline errors "Minimum required is ₹100" and "Enter less than ₹[current]". Button "Continue" → small confirm sheet → Done.
-6. GR-1 assistant bottom sheet: chip "YOUR SIP", 3 suggested questions, chat, input "Ask GR-1 about your SIP". Under every AI answer: "Based on: [rule title]", then "Sources: AMFI investor education · Groww Help Centre" (links), then "Information only, not investment advice". Works as described in ai_rules.md.
-7. Cancel confirm sheet over the dimmed options sheet: "You are cancelling ₹500 monthly SIP", "Your invested money stays invested. Only future instalments stop.", rows (Invested money: Stays invested / Last instalment / Restart: Start a new SIP anytime), optional reason chips (Money is tight / Returns / Need the money / Other), primary "Cancel SIP", text button "Go back".
-8. Done: green tick, message for the chosen option (skipped / paused till date / amount lowered / cancelled), button "Back to my SIP".
+### Exit 1: Redeem (classic Groww + one new card)
+6. **Redeem amount** (classic_redeem_amount, _amount_100): title "Redeem [fund name]" (cut with …), "₹3,036 available" (that fund's value; Midcap ₹4,048), settings icon, big ₹ amount with a green cursor, "Redeem All" checkbox (fills in the full amount), bank row with a plain bank icon, "Your bank ••••0000" and "Expected transfer by [3 working days from today]", keypad with ".", "Proceed" (grey until valid: minimum ₹100, maximum available; errors "Minimum required is ₹100" and "You can redeem up to ₹[available]"). Every new redemption starts empty. One fund at a time.
+7. **You are redeeming sheet** (classic_redeem_sheet): "You are redeeming ₹X", card with Redeem bank (Your bank ••••0000), Applicable NAV date (today on a weekday before 3 pm, else the next working day), Exit load (Approx) ₹0.00; card Capital gains with LTCG ₹0.00 and STCG (gain share of the amount). Button "Continue to redeem".
+   - **NEW (green "New" tag): YOUR SIP card** above the button: "YOUR SIP · ₹500 due on 5 Dec. If money's tight this month, you can skip just that instalment. Your SIP and your invested money stay as they are." Buttons "Skip 5 Dec instalment" (text button) and "Ask GR-1". Skipping shows a small confirm, then returns to this sheet with "Next instalment skipped ✓ · Your SIP continues on 5 Jan." Hidden if the SIP is paused or cancelled. Nothing blocks the redemption.
+8. **Redemption placed**: green tick, "Redemption placed", "Money usually reaches your bank by [date].", fund and amount, "To: Your bank ••••0000", and one line about the SIP ("Your SIP continues. Next instalment of ₹500 on 5 Dec." or "Your next instalment is skipped. Your SIP continues on 5 Jan."). Button "Back to Dashboard". No OTP screen. Holdings do not change after a redemption (demo).
 
-Skip from B3 goes to a small confirm, then B8.
+### SIP details (classic Groww + Need help)
+9. **SIP details** (classic_sip_details): back arrow, "SIP details", "Cancel SIP" with a dotted underline at top right. "₹500", "Monthly SIP on 5th", fund name with chevron, "Add step-up" (light green, does nothing) and "Change amount/date" (opens Lower the amount). "Upcoming": the next instalment ("7th instalment · 5 Dec '26") with a "Skip" link: small confirm, then that row shows "Skipped" and the following instalment is listed below it. "Details" opens and closes: start date, instalments done, invested, goal (if any). **NEW: "Need help"** button with a green "New" tag opens GR-1.
+
+### Exit 2: Cancel reasons (classic Groww + reason-aware answers)
+10. **Choose your reason to cancel this SIP** (classic_cancel_reasons, exact copy): back arrow, title, six bordered rows with icons: Not satisfied with **returns** / Want to **withdraw** money / Want to **pause** investing / Want to **change SIP amount/date** / Goal is completed / Other reason to cancel.
+11. **NEW (green "New" tag): what each reason opens**
+    - Want to withdraw money → sheet "Withdrawing and cancelling are different": "You can take out some or all of your invested money and keep your SIP running. Or skip just the next instalment." Four equal rows: "Withdraw money, keep SIP" (the redeem flow for this fund) / "Skip next instalment" (small confirm → Done) / "Pause for 1–3 months" / "Continue to cancel".
+    - Not satisfied with returns → sheet "How SIP returns work": rule R11 word for word, the sources line, "Ask GR-1 about this", then three equal rows: "Lower the amount" / "Pause for 1–3 months" / "Continue to cancel". No predictions, no fund names.
+    - Want to pause investing → the Pause screen, plus a text link "Cancel instead".
+    - Want to change SIP amount/date → Lower the amount, plus "Cancel instead".
+    - Goal is completed → straight to cancel confirm, with "Congrats on reaching your goal. Your invested money stays invested until you redeem it."
+    - Other reason to cancel → straight to cancel confirm.
+    - "Continue to cancel" always has the same size and weight as the other options.
+12. **Pause**: choose 1, 2 or 3 months, see which instalments are skipped, restart date, "We'll remind you 3 days before, with all options again", "Your ₹3,000 already invested stays invested during the pause". Button "Confirm pause"; "Cancel instead" when reached from the cancel reasons.
+13. **Lower the amount**: big amount with keypad (whole rupees), "Currently ₹500", inline errors "Minimum required is ₹100" and "Enter less than ₹[current]". "Continue" → small confirm sheet → Done. "Cancel instead" when reached from the cancel reasons.
+14. **Cancel confirm** sheet: "You are cancelling ₹500 monthly SIP", "Your invested money stays invested. Only future instalments stop.", rows (Invested money: Stays invested / Last instalment / Restart: Start a new SIP anytime), primary "Cancel SIP", text button "Go back". No reason chips (the reason was already chosen).
+15. **Done**: green tick, message for the chosen option (skipped / paused till date / amount lowered / cancelled), fund, "Your ₹3,000 stays invested", button "Back to my SIP".
+
+### GR-1 (NEW)
+16. **GR-1 assistant** bottom sheet, classic Groww style with a green "New" tag: chip "YOUR SIP", suggested questions, chat, input "Ask GR-1 about your SIP". Under every AI answer: "Based on: [rule title]", "Sources: AMFI investor education · Groww Help Centre" (links), "Information only, not investment advice". Suggested questions depend on where it was opened:
+    - from the YOUR SIP card: "If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"
+    - from "How SIP returns work": "Why are my SIP returns low?", "Does stopping my SIP change my returns?"
+    - anywhere else (header swirl, Need help, Pause): "What happens if I skip this month?", "Does cancelling touch my invested money?", "Will I be charged if a payment fails?"
+    Works as described in ai_rules.md (safety check, sources, fallback, "Simulate AI failure").
 
 ### Test log (for user testing)
-Every time a user reaches a Done screen (SIP option or redemption), one row is saved in this browser (localStorage, wrapped in try/catch so the app still works if storage is blocked): time, device, option (skip / pause / lower / cancel / redeem), entry (where SIP options were opened from: redeem / cancel; "edit" for Edit SIP → Lower), pause months, new amount, cancel reason, redeem amount, and the number of GR-1 questions asked since the last Reset. This is a deliberate, PM-approved exception to "no saving between visits"; it never leaves the browser.
+One row is saved in this browser each time a run finishes: a Done screen, "Redemption placed", or a skip confirmed on SIP details (which has no Done screen). Columns: time, device, entry (redeem / cancel / sip details), cancel reason picked, final choice (redeem only / skip / pause / lower / cancel), pause months, new amount, redeem amount, GR-1 questions asked since the last Reset. A skip made on the YOUR SIP card is saved when the redemption finishes (final choice "skip" plus the redeem amount). localStorage, wrapped in try/catch so the app still works if storage is blocked. Rows saved before the classic redesign used other columns and are not shown. This is a deliberate, PM-approved exception to "no saving between visits"; it never leaves the browser.
 
-## Fixes to apply versus the Stitch designs and Groww screenshots
-- Never show a real fund name, bank name, account number, email or phone number on any screen, even if it appears in a design or screenshot. Use "Sample …" fund names only.
-- Android screen 02 shows a real fund name; iOS screen 06 shows "Auto-debit: HDFC Bank"; the Groww redeem screenshots show a real fund and bank account: all replaced or removed.
-- iOS screen 07 shows a "Redeem ₹100" screen in the background: the background must be the options sheet.
-- Reason chips must never break words across lines.
-- Dates: compute from today's date. Next instalment is the next time the instalment day comes round after today; last instalment is the most recent one before today (on the instalment day itself, today's counts as the last). Example, today = 6 Nov 2026: Flexi Cap (5th) last 5 Nov, next 5 Dec; Midcap (10th) last 10 Oct, next 10 Nov. Pause dates start from the next instalment. Never show a past year. "Today" is read in the visitor's browser.
-- Icons: use an icon library (lucide-react). No empty boxes.
+## Fixes to apply versus the screenshots
+- Never show a real fund name, bank name, account number, email or phone number on any screen, even though they appear in the screenshots. Funds: "Sample Flexi Cap Fund Direct Growth" (₹500 on the 5th, 6 instalments) and "Sample Midcap Fund Direct Growth" (₹1,000 on the 10th, 4 instalments), plus other "Sample …" names on Explore and Watchlist. Bank: a plain bank icon and "Your bank ••••0000".
+- Dates: compute from today's date. Next instalment is the next time the instalment day comes round after today; last instalment is the most recent one before today (on the instalment day itself, today's counts as the last). Pause dates start from the next instalment. Never show a past year. "Today" is read in the visitor's browser. Short dates never break across two lines.
+- Icons: use an icon library (lucide-react) or simple drawn SVGs. No empty boxes, no copied Groww artwork.
 
 ## Rules for the whole product
-- "Cancel SIP" always has equal visual weight to the other options and is never hidden. No guilt messages, no countdowns, no red warning colours.
-- Returns, NAV and performance numbers appear ONLY on Groww's existing screens: Dashboard and For you (returns), and Groww's redeem sheet (NAV date, exit load, capital gains). Our new SIP screens (B1–B8, the SIP card in the redeem sheet, GR-1) never show returns, NAV, units or growth claims ("stays invested" only).
-- Colours: Groww blue (#5367FF) only on screens copied from Groww (Dashboard, For you, Watchlist, Redeem) and the shared app header and bottom nav. Our new SIP screens, GR-1 and the SIP card use Groww green (#00D09C for icons, bars and accents with no text; #00A67E for green text and for buttons). Any button with white text uses 19px+ bold text (contrast rule for large text). Soft orange only for error messages.
+- "Continue to cancel" and "Cancel SIP" always have equal visual weight to the other options and are never hidden. No guilt messages, no countdowns, no red warning colours.
+- Returns, NAV and performance numbers appear ONLY on classic Groww's existing screens: Explore and Dashboard (returns), and the redeem sheet (NAV date, exit load, capital gains). The new parts (YOUR SIP card, reason answers, GR-1) never show return numbers, NAV, units or growth claims ("stays invested" / "moves with the market" only). "How SIP returns work" explains rule R11 in words, with no numbers or predictions.
+- Colours (sampled from the screenshots): near-black text #141414, grey text #6B6B6B, dividers #EBEBEB / #F4F4F4, light green #E9FAF2 with green text #0D916A, returns green #00A271 and red #E5583B (Groww's own screens only), avatar #00877D. The only blue is the active "Mutual Funds" item in the bottom nav (#5A64E5, classic Groww's real navigation colour). No Prime blue, no "Prime" wording. Any button with white text uses #00A67E and 19px+ bold text (contrast rule for large text, PM decision); classic Groww's own lighter green #04B388 is not used for white text. Soft orange only for error messages.
 - Footer on every screen: "Information only, not investment advice."
-- Exception (PM decision, 7 Nov): the "How we test the AI" page shows the 20 golden questions word for word, including the real names in G14 (a fund) and G18 (a company), because showing that GR-1 refuses them is the point of the test. No real names appear inside the phone.
-- Small grey line in the desktop toolbar: "Concept prototype for a PM case study."
+- Exception (PM decision, 7 Nov): the "How we test the AI" page shows the 22 golden questions word for word, including the real names in G14 (a fund) and G18 (a company), because showing that GR-1 refuses them is the point of the test. No real names appear inside the phone.
 
 ## Out of scope for v1
 - Real Groww accounts, login, real money or real mandates.
 - Recommending funds or predicting returns.
 - Real notifications (the pause reminder is shown, not sent).
 - Detecting cancellations made from a bank app.
+- Changing the SIP date (the "Change amount/date" screen changes the amount only).
 - Saving data between visits or across devices (except the browser-only test log).
 - Languages other than English.
 
 ## Tech
 - Next.js (App Router) + TypeScript + Tailwind CSS, deployed on Vercel.
 - AI: Groq API, model `openai/gpt-oss-120b`, called only from a server route (`/api/ask`). The key lives in `.env.local` locally and in Vercel environment variables as `GROQ_API_KEY`. Never put the key in browser code or in Git.
-- `.gitignore` must include `.env*`, `node_modules`, `.next`, `CLAUDE.md`.
+- `/api/ask` protections: at most 20 questions a minute per visitor, questions over 300 characters get a friendly message, and "Run evaluation" on the live site can start at most once every 10 minutes.
+- `.gitignore` must include `.env*`, `node_modules`, `.next`, `CLAUDE.md`, and the design folders with real screenshots (`design/groww_reference/`, `design/groww_classic/`, `design/android/`, `design/ios/`, `design/*.zip`).

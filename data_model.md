@@ -30,11 +30,11 @@ Derived, not stored: invested = monthlyAmount × instalmentsDone; goal progress 
 | text | string | yes |
 | sources | {label: string, url: string}[] | yes |
 
-Every rule has two sources: "AMFI investor education" (https://www.amfiindia.com/investor-corner) and "Groww Help Centre" (https://groww.in/help). Answers show them as one line: "Sources: AMFI investor education · Groww Help Centre".
+11 rules (R1 to R11; R11 "Short-term returns" was added with the classic redesign, 7 Nov 2026). Every rule has two sources: "AMFI investor education" (https://www.amfiindia.com/investor-corner) and "Groww Help Centre" (https://groww.in/help). Answers show them as one line: "Sources: AMFI investor education · Groww Help Centre".
 
 Content: see ai_rules.md.
 
-### GoldenItem (20 test questions)
+### GoldenItem (22 test questions, golden set v2)
 | field | type | required |
 |---|---|---|
 | id | string | yes |
@@ -43,7 +43,7 @@ Content: see ai_rules.md.
 | mustMention | string[] | no |
 | mustNotMention | string[] | no |
 
-Content: see ai_rules.md.
+Content: see ai_rules.md. Set v1 (G1 to G20) was used for runs 1 to 4; set v2 adds G21 and G22 (from run 5).
 
 ### Holding (2, one per SIP; Groww's existing Dashboard and redeem screens only)
 | field | type | required | note |
@@ -52,15 +52,16 @@ Content: see ai_rules.md.
 | currentValue | number | yes | ₹3,036 and ₹4,048 |
 | oneDayChange | number | yes | ₹9 and ₹12 |
 
-Plus one constant: portfolio XIRR "6.10%" (shown as given, not worked out).
+Plus constants shown as given, not worked out: portfolio XIRR "6.10%", and a sample XIRR per fund for the Dashboard rows (Flexi Cap "6.34%", Midcap "5.92%").
 
-Derived, not stored: invested (from Sip); total current value ₹7,084; total returns = current value − invested (+₹84, 1.2%); 1D returns = sum of oneDayChange (+₹21, 0.3%); amount available to redeem = total current value; how a redemption splits across funds (Flexi Cap first, up to its current value, then Midcap); short-term capital gain = each part × (currentValue − invested) / currentValue; NAV date and "redemption by" date from today (working days). Returns are shown only on Groww's existing screens, never on our SIP screens.
+Derived, not stored: invested (from Sip); total current value ₹7,084; total returns = current value − invested (+₹84, 1.2%); 1D returns = sum of oneDayChange (+₹21, 0.3%); amount available to redeem = that fund's current value (classic Groww redeems one fund at a time); short-term capital gain = amount × (currentValue − invested) / currentValue; NAV date and "expected transfer" date (3 working days from today). Returns are shown only on Groww's existing screens, never on our SIP screens.
 
 ## Session data (created when the user acts, in memory only)
 
 ### Redemption (while on the redeem flow)
 | field | type | required |
 |---|---|---|
+| sipId | string | yes (the fund being redeemed) |
 | amount | string as typed, e.g. "1000" or "250.5" | yes |
 
 Cleared when a new redemption starts or on Reset. Dashboard holdings do not change after a redemption (demo).
@@ -72,7 +73,12 @@ Cleared when a new redemption starts or on Reset. Dashboard holdings do not chan
 | option | "skip" \| "pause" \| "lower" \| "cancel" | yes |
 | pauseMonths | 1 \| 2 \| 3 | only for pause |
 | newAmount | number | only for lower |
-| cancelReason | "money_tight" \| "returns" \| "need_money" \| "other" | no |
+| cancelReason | "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other" | no (set when the option was reached from the cancel reasons) |
+
+A skip made on the YOUR SIP card or on SIP details is also a Decision (option "skip"); the screen then shows it in place.
+
+### Cancel reason draft (while on the cancel path)
+The reason picked on "Choose your reason to cancel this SIP": "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other". It decides what opens next and is copied into the Decision and the test log row.
 
 ### ChatMessage
 | field | type | required |
@@ -82,6 +88,8 @@ Cleared when a new redemption starts or on Reset. Dashboard holdings do not chan
 | ruleIds | string[] | assistant only |
 | status | "ok" \| "fallback" \| "refused" | assistant only |
 | simulated | boolean | assistant only; true when "Simulate AI failure" was on |
+
+Where GR-1 was opened from ("redeem" \| "returns" \| "other") is kept in memory to choose its suggested questions; it is not part of a message.
 
 ### EvalResult (one per golden item, when "Run evaluation" is pressed)
 | field | type | required |
@@ -93,23 +101,24 @@ Cleared when a new redemption starts or on Reset. Dashboard holdings do not chan
 | passed | boolean | yes |
 | reason | string | yes |
 
-Derived, not stored: score, advice leaks count, refusal accuracy.
+Derived, not stored: score, advice leaks count, refusal accuracy. The saved run (`eval/last_run.json`) also records `goldenSet` ("v2" from run 5 on).
 
 ## Browser-only data (PM-approved exception: survives reloads, never leaves the browser)
 
-### TestLogRow (one each time a Done screen is reached; localStorage, Clear empties it)
+### TestLogRow (one each time a run finishes; localStorage, Clear empties it)
+A run finishes at a Done screen, at "Redemption placed", or when a skip is confirmed on SIP details. Stored under a new key since the classic redesign; older rows are not shown.
+
 | field | type | required |
 |---|---|---|
 | time | ISO timestamp | yes |
 | device | "iphone" \| "pixel" \| "frameless" | yes |
-| option | "skip" \| "pause" \| "lower" \| "cancel" \| "redeem" | yes |
-| entry | "redeem" \| "cancel" \| "edit" | no (where SIP options were reached from) |
+| entry | "redeem" \| "cancel" \| "sip_details" | yes (where the run started) |
+| cancelReason | "returns" \| "withdraw" \| "pause" \| "change" \| "goal" \| "other" | only when entry is "cancel" |
+| finalChoice | "redeem_only" \| "skip" \| "pause" \| "lower" \| "cancel" | yes |
 | pauseMonths | 1 \| 2 \| 3 | only for pause |
 | newAmount | number | only for lower |
-| cancelReason | "money_tight" \| "returns" \| "need_money" \| "other" | no |
-| redeemAmount | number | only for redeem |
+| redeemAmount | number | only when a redemption was placed |
 | gr1Questions | number | yes (since the last Reset) |
-| smartRedeemSeen | boolean | yes (the Smart Redeem intro sheet was shown in this run) |
 
 ## Diagram
 

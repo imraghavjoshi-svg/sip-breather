@@ -4,13 +4,16 @@ export type DeviceKind = "iphone" | "pixel" | "frameless";
 export type Zoom = 1 | 0.9 | 0.8;
 
 /** The four step tabs in the desktop toolbar. */
-export type StepTab = "dashboard" | "redeem" | "options" | "cancel";
+export type StepTab = "dashboard" | "redeem" | "reasons" | "answer";
 
 /** The four top tabs inside the app. */
-export type HomeTab = "foryou" | "dashboard" | "sips" | "watchlist";
+export type HomeTab = "explore" | "dashboard" | "sips" | "watchlist";
 
-/** Where the SIP options sheet was reached from (for the test log). */
-export type OptionsEntry = "redeem" | "cancel" | "edit";
+/** Where a test run started (for the test log): the redeem flow, Cancel SIP, or SIP details (Skip / Change amount). */
+export type Entry = "redeem" | "cancel" | "sip_details";
+
+/** What the run ended with (for the test log). */
+export type FinalChoice = "redeem_only" | "skip" | "pause" | "lower" | "cancel";
 
 // ---------- Seed data ----------
 
@@ -37,7 +40,7 @@ export type Holding = {
   oneDayChange: number; // ₹ change today
 };
 
-export type RuleId = "R1" | "R2" | "R3" | "R4" | "R5" | "R6" | "R7" | "R8" | "R9" | "R10";
+export type RuleId = "R1" | "R2" | "R3" | "R4" | "R5" | "R6" | "R7" | "R8" | "R9" | "R10" | "R11";
 
 export type RuleSource = { label: string; url: string };
 
@@ -61,7 +64,8 @@ export type GoldenItem = {
 // ---------- Session data (in memory only) ----------
 
 export type DecisionOption = "skip" | "pause" | "lower" | "cancel";
-export type CancelReason = "money_tight" | "returns" | "need_money" | "other";
+/** The six reasons on classic Groww's "Choose your reason to cancel this SIP" screen. */
+export type CancelReason = "returns" | "withdraw" | "pause" | "change" | "goal" | "other";
 export type PauseMonths = 1 | 2 | 3;
 
 export type Decision = {

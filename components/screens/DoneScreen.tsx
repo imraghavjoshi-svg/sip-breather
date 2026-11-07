@@ -1,10 +1,10 @@
 "use client";
 
-// Screen 8: Done. Green tick + a message for the chosen option.
+// Done, in classic Groww's style. Green tick + a message for the chosen option.
 // No returns or growth claims: only "stays invested".
 
 import type { ReactNode } from "react";
-import { Bell, CalendarDays, Check, Layers, RotateCcw, Wallet } from "lucide-react";
+import { Bell, CalendarDays, Check, RotateCcw, Wallet } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
@@ -18,7 +18,7 @@ import {
 } from "@/lib/dates";
 import { formatRupees, invested } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Disclaimer } from "../phone/parts";
+import { Disclaimer, FundSquare } from "../phone/parts";
 import { PrimaryButton } from "../phone/Sheet";
 import { InfoRow } from "../phone/InfoRow";
 
@@ -31,7 +31,7 @@ export default function DoneScreen() {
 
   const sip = getSip(decision.sipId);
   const next = nextInstalment(sip.instalmentDay, today);
-  const investedText = <b className="font-semibold text-gray-900">{formatRupees(invested(sip))}</b>;
+  const investedText = <b className="font-medium text-ink">{formatRupees(invested(sip))}</b>;
 
   let title: string;
   let subtitle: string;
@@ -44,7 +44,7 @@ export default function DoneScreen() {
       subtitle = "Only this one instalment is not taken.";
       rows = (
         <InfoRow Icon={CalendarDays} last>
-          Your SIP continues on <b className="font-semibold text-gray-900">{formatFullDate(continues)}</b>.
+          Your SIP continues on <b className="font-medium text-ink">{formatFullDate(continues)}</b>.
         </InfoRow>
       );
       break;
@@ -56,7 +56,7 @@ export default function DoneScreen() {
       rows = (
         <>
           <InfoRow Icon={CalendarDays}>
-            Next instalment on <b className="font-semibold text-gray-900">{formatFullDate(restart)}</b>.
+            Next instalment on <b className="font-medium text-ink">{formatFullDate(restart)}</b>.
           </InfoRow>
           <InfoRow Icon={Bell} last>
             We&apos;ll remind you on {formatDayMonth(daysBefore(restart, 3))}, 3 days before, with all options again.
@@ -71,7 +71,7 @@ export default function DoneScreen() {
       subtitle = "Your SIP stays active at the lower amount.";
       rows = (
         <InfoRow Icon={CalendarDays} last>
-          From your next instalment on <b className="font-semibold text-gray-900">{formatFullDate(next)}</b>.
+          From your next instalment on <b className="font-medium text-ink">{formatFullDate(next)}</b>.
         </InfoRow>
       );
       break;
@@ -89,29 +89,22 @@ export default function DoneScreen() {
 
   return (
     <div className="flex h-full flex-col bg-white" style={{ paddingTop: device.safeTop }}>
-      <div className="flex flex-1 flex-col overflow-y-auto px-6 pt-10">
-        <div className="mx-auto flex h-[120px] w-[120px] items-center justify-center rounded-full bg-accent-tint">
-          <div className="flex h-[84px] w-[84px] items-center justify-center rounded-full bg-[#C6F4E8]">
-            <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-accent">
-              <Check size={32} strokeWidth={3} color="white" aria-hidden />
-            </div>
+      <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-14">
+        <div className="mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-full bg-accent-tint">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-button">
+            <Check size={28} strokeWidth={3} color="white" aria-hidden />
           </div>
         </div>
 
-        <h1 className="mt-7 text-center text-[26px] font-bold leading-tight tracking-tight text-gray-900" role="status">
+        <h1 className="mt-6 text-center text-[22px] font-medium leading-snug text-ink" role="status">
           {title}
         </h1>
-        <p className="mt-2 text-center text-[16px] text-gray-500">{subtitle}</p>
+        <p className="mt-2 text-center text-[15px] text-ink-2">{subtitle}</p>
 
-        <div className="mt-8 rounded-2xl border border-gray-200 px-4">
-          <div className="flex items-center gap-3 border-b border-gray-100 py-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF1E3] text-[#F07A1A]">
-              <Layers size={20} aria-hidden />
-            </span>
-            <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">Fund name</p>
-              <p className="text-[16px] font-semibold leading-snug text-gray-900">{sip.fundName}</p>
-            </div>
+        <div className="mt-8 rounded-xl border border-line px-[15px]">
+          <div className="flex items-center gap-3 border-b border-line-soft py-3">
+            <FundSquare index={sip.id === "sip_flexi" ? 0 : 1} size={30} />
+            <p className="min-w-0 text-[14px] leading-snug text-ink">{sip.fundName}</p>
           </div>
           <InfoRow Icon={Wallet}>Your {investedText} stays invested.</InfoRow>
           {rows}

@@ -1,178 +1,181 @@
 "use client";
 
-// Screen 2: SIP details. No returns, NAV or performance numbers.
+// SIP details: copy of classic Groww's screen (classic_sip_details).
+// Working: "Cancel SIP" (top right, opens the reasons screen), "Change amount/date" (our lower-amount
+// screen), "Skip" on the Upcoming row (small confirm, then "Skipped" on that
+// row), "Details" (opens and closes), and "Need help" (NEW: opens GR-1).
+// "Add step-up" and the fund name link are shown for realism only.
+// No returns, NAV or units on this screen.
 
-import type { ReactNode } from "react";
-import { Sparkles } from "lucide-react";
-import { useDevice } from "@/lib/device";
+import { useState } from "react";
+import { CalendarDays, ChartNoAxesColumn, ChevronDown, ChevronRight, CircleHelp, Pencil } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
-import { formatDayMonth, formatFullDate, pastInstalments } from "@/lib/dates";
-import { formatRupees, goalProgress, sipView, type SipStatus } from "@/lib/sip";
+import { useDevice } from "@/lib/device";
+import { formatDayMonth, formatDayMonthYear, nextInstalment, ordinal, pastInstalments } from "@/lib/dates";
+import { formatRupees, goalProgress, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { ACCENT, Disclaimer, ScreenHeader } from "../phone/parts";
-
-const STATUS_STYLE: Record<SipStatus, { dot: string; text: (label: string) => string }> = {
-  active: { dot: ACCENT, text: () => "Active monthly SIP" },
-  skipping: { dot: ACCENT, text: (l) => `Active · ${l}` },
-  paused: { dot: "#F5A524", text: (l) => l },
-  cancelled: { dot: "#9CA3AF", text: () => "Cancelled · future instalments stopped" },
-};
+import { Disclaimer, DottedLink, NewTag, ScreenHeader } from "../phone/parts";
 
 export default function SipDetails() {
   const { state, dispatch } = useDemo();
   const today = useToday();
   const device = useDevice();
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const sip = getSip(state.sipId);
   const view = sipView(sip, state.decision, today);
-  const progress = goalProgress(sip);
   const cancelled = view.status === "cancelled";
-  const statusStyle = STATUS_STYLE[view.status];
+  const progress = goalProgress(sip);
+  const nextNumber = ordinal(sip.instalmentsDone + 1);
+  const firstInstalment = pastInstalments(sip.instalmentDay, sip.instalmentsDone, today).at(-1)!;
 
   return (
     <div className="flex h-full flex-col bg-white">
-      <ScreenHeader title={sip.fundName} onBack={() => dispatch({ type: "back" })} />
+      <ScreenHeader
+        title="SIP details"
+        large
+        onBack={() => dispatch({ type: "back" })}
+        right={
+          !cancelled && (
+            <DottedLink onClick={() => dispatch({ type: "go", screen: "cancelReasons" })}>Cancel SIP</DottedLink>
+          )
+        }
+      />
 
-      <div className="flex flex-1 flex-col overflow-y-auto px-5 pt-4">
-        <p className="flex items-baseline gap-2">
-          <span className="text-[40px] font-bold leading-none tracking-tight text-gray-900">
-            {formatRupees(view.invested)}
-          </span>
-          <span className="text-[26px] font-semibold text-gray-500">invested</span>
-        </p>
-        <p className="mt-3 flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-gray-600">
-          <span className="h-2 w-2 rounded-full" style={{ background: statusStyle.dot }} aria-hidden />
-          {statusStyle.text(view.statusLabel)}
-        </p>
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        {/* Amount, schedule, fund */}
+        <div className="px-4 pt-4">
+          <p className="text-[26px] font-medium leading-tight text-ink">{formatRupees(view.monthlyAmount)}</p>
+          <p className="mt-1 text-[13px] font-medium text-ink">
+            {cancelled ? "Cancelled" : `Monthly SIP on ${ordinal(sip.instalmentDay)}`}
+          </p>
+          <p className="mt-4 flex items-center gap-1.5 text-[15px] text-ink-2">
+            <span className="truncate">{sip.fundName}</span>
+            <ChevronRight size={16} className="shrink-0" aria-hidden />
+          </p>
 
-        <div className="mt-5 rounded-2xl border border-gray-200 px-5">
-          <Row label="Monthly amount" value={formatRupees(view.monthlyAmount)} />
-          <Row
-            label="Next instalment"
-            value={view.nextDate ? formatFullDate(view.nextDate) : "None"}
-          />
-          <Row label="Instalments done" value={String(sip.instalmentsDone)} last={progress === null} />
-          {progress !== null && (
-            <div className="py-4">
-              <div className="flex items-baseline justify-between">
-                <span className="text-[14px] font-medium text-gray-800">Goal: {sip.goalName}</span>
-                <span className="text-[13px] text-gray-500">
-                  {formatRupees(view.invested)} of {formatRupees(sip.goalTarget!)} ({Math.round(progress * 100)}%)
-                </span>
-              </div>
-              <div
-                className="mt-2.5 h-2 overflow-hidden rounded-full bg-gray-100"
-                role="progressbar"
-                aria-label={`Goal ${sip.goalName}`}
-                aria-valuenow={Math.round(progress * 100)}
-                aria-valuemin={0}
-                aria-valuemax={100}
+          {!cancelled && (
+            <div className="mt-[18px] flex gap-3">
+              {/* Shown as in Groww; does nothing in this demo. */}
+              <button
+                type="button"
+                className="flex h-[38px] items-center gap-2 rounded-lg bg-accent-tint px-3.5 text-[15px] font-medium text-accent-text"
               >
-                <div
-                  className="h-full rounded-full"
-                  style={{ width: `${Math.max(progress * 100, 3)}%`, background: ACCENT }}
-                />
-              </div>
+                <ChartNoAxesColumn size={17} strokeWidth={2.4} aria-hidden /> Add step-up
+              </button>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: "go", screen: "lower" })}
+                className="flex h-[38px] items-center gap-2 rounded-lg border border-line px-3.5 text-[15px] font-medium text-ink hover:bg-[#fafafa]"
+              >
+                <Pencil size={16} aria-hidden /> Change amount/date
+              </button>
             </div>
           )}
         </div>
 
-        <div className="mt-5 flex gap-3">
-          {!cancelled && (
-            <OutlineButton onClick={() => dispatch({ type: "go", screen: "lower" })}>Edit SIP</OutlineButton>
+        {/* Upcoming */}
+        <section className="mt-6 border-t border-line px-4 pb-4 pt-6" aria-labelledby="upcoming">
+          <h2 id="upcoming" className="text-[18px] font-medium text-ink">
+            Upcoming
+          </h2>
+          {cancelled ? (
+            <p className="mt-3 text-[14px] leading-snug text-ink-2">
+              No upcoming instalments. Your invested money stays invested until you redeem it.
+            </p>
+          ) : view.status === "skipping" ? (
+            <>
+              <UpcomingRow
+                label="Next instalment"
+                date={nextInstalment(sip.instalmentDay, today)}
+                right={<span className="rounded bg-line-soft px-2 py-0.5 text-[13px] font-medium text-ink-2">Skipped</span>}
+              />
+              <UpcomingRow label={`${nextNumber} instalment`} date={view.nextDate!} />
+            </>
+          ) : view.status === "paused" ? (
+            <UpcomingRow
+              label={`${nextNumber} instalment`}
+              date={view.nextDate!}
+              right={<span className="text-[13px] text-ink-2">{view.statusLabel}</span>}
+            />
+          ) : (
+            <UpcomingRow
+              label={`${nextNumber} instalment`}
+              date={view.nextDate!}
+              right={<DottedLink onClick={() => dispatch({ type: "go", screen: "skipConfirm" })}>Skip</DottedLink>}
+            />
           )}
-          <OutlineButton onClick={() => dispatch({ type: "openGr1" })}>
-            Ask GR-1 <Sparkles size={16} color={ACCENT} aria-hidden />
-          </OutlineButton>
-        </div>
+        </section>
 
-        {cancelled && (
-          <p className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-[14px] text-gray-600">
-            Your {formatRupees(view.invested)} stays invested. You can start a new SIP anytime.
-          </p>
-        )}
-        {view.status === "skipping" && view.nextDate && (
-          <p className="mt-5 rounded-xl bg-gray-50 px-4 py-3 text-[14px] text-gray-600">
-            Next instalment skipped. Your SIP continues on {formatDayMonth(view.nextDate)}.
-          </p>
-        )}
-
-        <InstalmentHistory
-          dates={pastInstalments(sip.instalmentDay, Math.min(3, sip.instalmentsDone), today)}
-          amount={sip.monthlyAmount}
-        />
-
-        <div className="flex-1" />
-
-        {!cancelled && (
+        {/* Details (opens and closes) */}
+        <section className="border-t border-line">
           <button
             type="button"
-            onClick={() => dispatch({ type: "go", screen: "options" })}
-            className="mx-auto mt-6 rounded-lg px-4 py-2 text-[15px] font-medium text-gray-500 hover:bg-gray-50"
+            onClick={() => setDetailsOpen((o) => !o)}
+            aria-expanded={detailsOpen}
+            className="flex w-full items-center justify-between px-4 py-5 text-left"
           >
-            Cancel SIP
+            <span className="text-[18px] font-medium text-ink">Details</span>
+            <ChevronDown size={20} className={`text-ink transition-transform ${detailsOpen ? "rotate-180" : ""}`} aria-hidden />
           </button>
+          {detailsOpen && (
+            <dl className="px-4 pb-4">
+              <DetailRow label="Start date" value={formatDayMonthYear(firstInstalment)} />
+              <DetailRow label="Instalments done" value={String(sip.instalmentsDone)} />
+              <DetailRow label="Invested" value={formatRupees(view.invested)} />
+              {progress !== null && (
+                <DetailRow
+                  label={`Goal: ${sip.goalName}`}
+                  value={`${formatRupees(view.invested)} of ${formatRupees(sip.goalTarget!)} (${Math.round(progress * 100)}%)`}
+                />
+              )}
+            </dl>
+          )}
+        </section>
+
+        {/* Need help → GR-1 (NEW) */}
+        <div className="border-t border-line px-4 pt-4">
+          <button
+            type="button"
+            onClick={() => dispatch({ type: "openGr1", from: "other" })}
+            className="flex h-[32px] items-center gap-1.5 rounded-lg border border-line px-2.5 text-[13px] font-medium text-ink hover:bg-[#fafafa]"
+          >
+            <CircleHelp size={15} aria-hidden /> Need help
+            <NewTag className="ml-1" />
+          </button>
+        </div>
+
+        <div className="flex-1" />
+        {view.status === "skipping" && (
+          <p className="sr-only" role="status">
+            {formatDayMonth(nextInstalment(sip.instalmentDay, today))} instalment skipped
+          </p>
         )}
-        <Disclaimer className="mt-3" />
+        <Disclaimer className="mt-6" />
         <div style={{ height: device.safeBottom + 8 }} aria-hidden />
       </div>
     </div>
   );
 }
 
-/**
- * Last few instalments already taken. Past instalments were taken at the
- * original amount, so this uses the SIP's seed amount even after "lower".
- * Dates, amount and a status tag only: no returns, NAV or units.
- */
-function InstalmentHistory({ dates, amount }: { dates: Date[]; amount: number }) {
-  if (dates.length === 0) return null;
+function UpcomingRow({ label, date, right }: { label: string; date: Date; right?: React.ReactNode }) {
   return (
-    <section className="mt-7" aria-labelledby="instalment-history">
-      <h2 id="instalment-history" className="text-[13px] font-semibold uppercase tracking-wide text-gray-500">
-        Instalment history
-      </h2>
-      <ul className="mt-2">
-        {dates.map((d, i) => (
-          <li
-            key={d.toISOString()}
-            className={`flex items-center justify-between py-3 ${i < dates.length - 1 ? "border-b border-gray-100" : ""}`}
-          >
-            <span className="text-[15px] text-gray-800">{formatFullDate(d)}</span>
-            <span className="flex items-center gap-3">
-              <span className="text-[15px] font-semibold text-gray-900">{formatRupees(amount)}</span>
-              <span className="whitespace-nowrap rounded-md bg-accent-tint px-2 py-0.5 text-[12px] font-semibold text-accent-text">
-                Successful
-              </span>
-            </span>
-          </li>
-        ))}
-      </ul>
-      {/* Shown for realism; does nothing in this demo. */}
-      <button type="button" className="mt-1 text-[14px] font-semibold text-accent-text hover:underline">
-        View all
-      </button>
-    </section>
-  );
-}
-
-function Row({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
-  return (
-    <div className={`flex items-center justify-between py-4 ${last ? "" : "border-b border-gray-100"}`}>
-      <span className="text-[16px] text-gray-500">{label}</span>
-      <span className="text-[16px] font-semibold text-gray-900">{value}</span>
+    <div className="mt-4 flex items-center gap-4">
+      <CalendarDays size={19} className="shrink-0 text-ink" aria-hidden />
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] text-ink">{label}</p>
+        <p className="mt-0.5 text-[13px] text-ink-2">{formatDayMonthYear(date)}</p>
+      </div>
+      {right}
     </div>
   );
 }
 
-function OutlineButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+function DetailRow({ label, value }: { label: string; value: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-gray-300 text-[16px] font-semibold text-gray-900 hover:bg-gray-50"
-    >
-      {children}
-    </button>
+    <div className="flex items-center justify-between gap-4 py-2.5">
+      <dt className="text-[14px] text-ink-2">{label}</dt>
+      <dd className="text-right text-[14px] text-ink">{value}</dd>
+    </div>
   );
 }

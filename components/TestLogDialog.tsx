@@ -2,18 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Download, Trash2, X } from "lucide-react";
-import { clearTestLog, readTestLog, testLogToCsv, type TestLogRow } from "@/lib/testLog";
+import {
+  CHOICE_LABELS,
+  clearTestLog,
+  ENTRY_LABELS,
+  readTestLog,
+  REASON_LABELS,
+  testLogToCsv,
+  type TestLogRow,
+} from "@/lib/testLog";
 import { DEVICES } from "@/lib/device";
-import type { CancelReason, OptionsEntry } from "@/lib/types";
-
-const ENTRY_LABELS: Record<OptionsEntry, string> = { redeem: "Redeem", cancel: "Cancel SIP", edit: "Edit SIP" };
-
-const REASON_LABELS: Record<CancelReason, string> = {
-  money_tight: "Money is tight",
-  returns: "Returns",
-  need_money: "Need the money",
-  other: "Other",
-};
 
 export default function TestLogDialog({ onClose }: { onClose: () => void }) {
   const [rows, setRows] = useState<TestLogRow[]>(() => readTestLog());
@@ -61,7 +59,7 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
               Test log
             </h2>
             <p className="text-[13px] text-gray-500">
-              One row each time someone reaches a Done screen (SIP option or redemption). Saved only in this browser.
+              One row each time a run finishes: a Done screen, &ldquo;Redemption placed&rdquo;, or a skip on SIP details. Saved only in this browser.
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-2 hover:bg-gray-100">
@@ -72,7 +70,7 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
         <div className="flex-1 overflow-auto px-6 py-4">
           {rows.length === 0 ? (
             <p className="py-10 text-center text-sm text-gray-500">
-              No test runs yet. Rows appear here when someone finishes an option and reaches the Done screen.
+              No test runs yet. Rows appear here when someone finishes a run.
             </p>
           ) : (
             <table className="w-full text-left text-[13px]">
@@ -80,12 +78,11 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
                 <tr className="border-b border-gray-100">
                   <th className="py-2 pr-4 font-medium">Time</th>
                   <th className="py-2 pr-4 font-medium">Device</th>
-                  <th className="py-2 pr-4 font-medium">Option</th>
                   <th className="py-2 pr-4 font-medium">Entry</th>
-                  <th className="py-2 pr-4 font-medium">Details</th>
                   <th className="py-2 pr-4 font-medium">Cancel reason</th>
+                  <th className="py-2 pr-4 font-medium">Final choice</th>
+                  <th className="py-2 pr-4 font-medium">Details</th>
                   <th className="py-2 pr-4 font-medium">GR-1 questions</th>
-                  <th className="py-2 font-medium">Smart Redeem seen</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,16 +90,15 @@ export default function TestLogDialog({ onClose }: { onClose: () => void }) {
                   <tr key={i} className="border-b border-gray-50">
                     <td className="whitespace-nowrap py-2 pr-4">{new Date(r.time).toLocaleString("en-IN")}</td>
                     <td className="py-2 pr-4">{DEVICES[r.device]?.label ?? r.device}</td>
-                    <td className="py-2 pr-4 capitalize">{r.option}</td>
-                    <td className="py-2 pr-4">{r.entry ? ENTRY_LABELS[r.entry] : ""}</td>
+                    <td className="py-2 pr-4">{ENTRY_LABELS[r.entry] ?? r.entry}</td>
+                    <td className="py-2 pr-4">{r.cancelReason ? REASON_LABELS[r.cancelReason] : ""}</td>
+                    <td className="py-2 pr-4">{CHOICE_LABELS[r.finalChoice] ?? r.finalChoice}</td>
                     <td className="py-2 pr-4">
                       {r.pauseMonths ? `${r.pauseMonths} month${r.pauseMonths > 1 ? "s" : ""}` : ""}
                       {r.newAmount ? `New amount ₹${r.newAmount.toLocaleString("en-IN")}` : ""}
                       {r.redeemAmount ? `Redeemed ₹${r.redeemAmount.toLocaleString("en-IN")}` : ""}
                     </td>
-                    <td className="py-2 pr-4">{r.cancelReason ? REASON_LABELS[r.cancelReason] : ""}</td>
                     <td className="py-2 pr-4">{r.gr1Questions}</td>
-                    <td className="py-2">{r.smartRedeemSeen === undefined ? "" : r.smartRedeemSeen ? "Yes" : "No"}</td>
                   </tr>
                 ))}
               </tbody>

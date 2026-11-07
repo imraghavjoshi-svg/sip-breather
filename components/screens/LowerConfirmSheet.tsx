@@ -21,21 +21,21 @@ export default function LowerConfirmSheet() {
 
   return (
     <Sheet label="Lower the amount" onDismiss={() => dispatch({ type: "back" })}>
-      <h2 className="text-[22px] font-bold tracking-tight text-gray-900">
+      <h2 className="text-[20px] font-medium text-ink">
         Lower to {formatRupees(newAmount)} a month?
       </h2>
-      <p className="mt-1.5 text-[15px] text-gray-500">
+      <p className="mt-1 text-[14px] text-ink-2">
         From {formatRupees(current)} to {formatRupees(newAmount)}.
       </p>
 
-      <div className="mt-4 rounded-2xl border border-gray-200 px-4">
+      <div className="mt-4 rounded-xl border border-line px-[15px]">
         <InfoRow Icon={CalendarDays}>
           Starts with your next instalment on{" "}
-          <b className="font-semibold text-gray-900">{formatFullDate(nextInstalment(sip.instalmentDay, today))}</b>.
+          <b className="font-medium text-ink">{formatFullDate(nextInstalment(sip.instalmentDay, today))}</b>.
         </InfoRow>
         <InfoRow Icon={CircleCheck}>Your SIP stays active.</InfoRow>
         <InfoRow Icon={Wallet} last>
-          Your <b className="font-semibold text-gray-900">{formatRupees(invested(sip))}</b> stays invested.
+          Your <b className="font-medium text-ink">{formatRupees(invested(sip))}</b> stays invested.
         </InfoRow>
       </div>
 
