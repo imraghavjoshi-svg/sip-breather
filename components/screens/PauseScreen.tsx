@@ -3,7 +3,8 @@
 // Pause, in classic Groww's style. Choose 1, 2 or 3 months, see which
 // instalments are skipped, the restart date and the reminder line. Dates
 // start from the next instalment. When reached from "Choose your reason to
-// cancel", a "Cancel instead" link is shown under the button.
+// cancel", the two facts (R1, R5, R10) sit at the top and "Cancel instead"
+// is an outlined button the same size as "Confirm pause" (fix 4).
 
 import { Bell, CalendarX2, CirclePlay, ShieldCheck } from "lucide-react";
 import { getSip } from "@/data/sips";
@@ -15,7 +16,8 @@ import { useToday } from "@/lib/today";
 import type { PauseMonths } from "@/lib/types";
 import { Disclaimer, Gr1Swirl, ScreenHeader } from "../phone/parts";
 import { InfoRow } from "../phone/InfoRow";
-import { PrimaryButton, TextButton } from "../phone/Sheet";
+import { CancelFactsNote } from "../phone/CancelFacts";
+import { PrimaryButton, SecondaryButton } from "../phone/Sheet";
 
 export default function PauseScreen() {
   const { state, dispatch } = useDemo();
@@ -47,6 +49,7 @@ export default function PauseScreen() {
       />
 
       <div className="flex flex-1 flex-col overflow-y-auto px-4 pt-2">
+        {inCancelPath(state) && <CancelFactsNote sip={sip} className="mb-4" />}
         <p className="text-[15px] leading-relaxed text-ink-2">
           Choose how long you want to pause instalments for <span className="text-ink">{sip.fundName}</span>.
         </p>
@@ -93,10 +96,10 @@ export default function PauseScreen() {
 
         <div className="flex-1" />
 
-        <div className="mt-6 flex flex-col gap-1">
+        <div className="mt-6 flex flex-col gap-2.5">
           <PrimaryButton onClick={() => dispatch({ type: "confirm", option: "pause" })}>Confirm pause</PrimaryButton>
           {inCancelPath(state) && (
-            <TextButton onClick={() => dispatch({ type: "go", screen: "cancelConfirm" })}>Cancel instead</TextButton>
+            <SecondaryButton onClick={() => dispatch({ type: "go", screen: "cancelConfirm" })}>Cancel instead</SecondaryButton>
           )}
         </div>
         <Disclaimer className="mt-2" />

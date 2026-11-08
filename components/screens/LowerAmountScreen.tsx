@@ -24,7 +24,8 @@ import { checkNewAmount, formatRupees, MAX_AMOUNT_DIGITS, sipView } from "@/lib/
 import { useToday } from "@/lib/today";
 import { Disclaimer, ScreenHeader } from "../phone/parts";
 import { Keypad } from "../phone/Keypad";
-import { PrimaryButton, TextButton } from "../phone/Sheet";
+import { CancelFactsNote } from "../phone/CancelFacts";
+import { PrimaryButton, SecondaryButton } from "../phone/Sheet";
 
 const DAYS = Array.from({ length: 28 }, (_, i) => i + 1);
 
@@ -76,6 +77,9 @@ export default function LowerAmountScreen() {
         onBack={() => dispatch({ type: "back" })}
       />
 
+      {/* Fix 4: from the cancel reasons, the two facts (R1, R5, R10) come first. */}
+      {inCancelPath(state) && <CancelFactsNote sip={sip} className="mx-4 mb-2" />}
+
       {/* Amount / Date segments, classic Groww tab style */}
       <div className="flex border-b border-line-soft px-4" role="tablist" aria-label="What to change">
         {(["amount", "date"] as const).map((t) => (
@@ -122,9 +126,11 @@ export default function LowerAmountScreen() {
           Continue
         </PrimaryButton>
         {inCancelPath(state) && (
-          <TextButton onClick={() => dispatch({ type: "go", screen: "cancelConfirm" })}>Cancel instead</TextButton>
+          <div className="mt-2.5">
+            <SecondaryButton onClick={() => dispatch({ type: "go", screen: "cancelConfirm" })}>Cancel instead</SecondaryButton>
+          </div>
         )}
-        <Disclaimer className={inCancelPath(state) ? "mt-1" : "mt-3"} />
+        <Disclaimer className="mt-3" />
         <div style={{ height: device.safeBottom + 8 }} aria-hidden />
       </div>
     </div>

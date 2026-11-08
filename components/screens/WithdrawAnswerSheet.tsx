@@ -1,36 +1,30 @@
 "use client";
 
 // NEW (green "New" tag): answer to "Want to withdraw money" on the cancel
-// reasons screen. Explains that withdrawing and cancelling are different,
-// then four equal options. "Continue to cancel" has the same size and weight
-// as the others. "Withdraw money, keep SIP" opens this SIP's "Redeem [fund]"
-// amount screen directly; Back returns here.
+// reasons screen. Starts with the two facts (R1, R5, R10), one short line,
+// then four equal options: the only screen of suggestions in the cancel path.
+// "Continue to cancel" has the same size and weight as the others and goes
+// straight to cancel confirm. "Withdraw money, keep SIP" opens this SIP's
+// "Redeem [fund]" amount screen directly; Back returns here.
 
-import { ArrowUpRight, CalendarX2, ChartBar, CirclePause, CircleX } from "lucide-react";
+import { ArrowUpRight, CalendarX2, CirclePause, CircleX } from "lucide-react";
+import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
+import { CancelFactsNote } from "../phone/CancelFacts";
 import { NewTag } from "../phone/parts";
 import { OptionRow } from "../phone/OptionRow";
 import { Sheet } from "../phone/Sheet";
 
 export default function WithdrawAnswerSheet() {
-  const { dispatch } = useDemo();
+  const { state, dispatch } = useDemo();
   return (
     <Sheet label="Withdrawing and cancelling are different" onDismiss={() => dispatch({ type: "back" })}>
       <NewTag />
       <h2 className="mt-2 text-[20px] font-medium leading-snug text-ink">Withdrawing and cancelling are different</h2>
-      <p className="mt-2 text-[15px] leading-relaxed text-ink-2">
-        You can take out some or all of your invested money and keep your SIP running. Or skip just the next
-        instalment.
-      </p>
-      <button
-        type="button"
-        onClick={() => dispatch({ type: "openCompare" })}
-        className="mt-3 flex h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-[14px] font-medium text-ink hover:bg-[#fafafa]"
-      >
-        <ChartBar size={16} aria-hidden /> Compare options
-      </button>
+      <CancelFactsNote sip={getSip(state.sipId)} className="mt-3" />
+      <p className="mt-3 text-[15px] leading-relaxed text-ink-2">You can take money out and keep your SIP running.</p>
 
-      <div className="mt-5 flex flex-col gap-2.5">
+      <div className="mt-4 flex flex-col gap-2.5">
         <OptionRow Icon={ArrowUpRight} chevron onClick={() => dispatch({ type: "withdrawKeepSip" })}>
           Withdraw money, keep SIP
         </OptionRow>

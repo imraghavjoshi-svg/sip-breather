@@ -69,6 +69,19 @@ export function PrimaryButton({
   );
 }
 
+/** Same size and weight as PrimaryButton, outlined instead of green ("Cancel instead"). */
+export function SecondaryButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-[44px] w-full items-center justify-center rounded-lg border border-line bg-white text-[19px] font-bold text-ink hover:bg-[#fafafa]"
+    >
+      {children}
+    </button>
+  );
+}
+
 export function TextButton({ onClick, children }: { onClick: () => void; children: ReactNode }) {
   return (
     <button

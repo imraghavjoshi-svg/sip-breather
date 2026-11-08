@@ -22,7 +22,7 @@ General rules written for this demo. Exact limits differ by fund house and bank,
 
 | R12 | Changing the SIP date | You can change the date of your SIP. The change usually applies from the next cycle; if the new date is very close, the upcoming instalment may still be taken on the old date. |
 
-R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). R12 was added on 7 Nov 2026 with SIP date changing (same sources as every rule); the "Change amount/date" screen follows it: a new date always starts from the next cycle, so the upcoming instalment stays on its old date and the new date starts in the month after it. No full evaluation was re-run for R12 (PM decision); see eval/EVIDENCE_LOG.md for the spot checks. The "Not satisfied with returns" answer on the cancel reasons screen shows R11 word for word.
+R11 was added on 7 Nov 2026 with the classic Groww redesign (golden set v2). R12 was added on 7 Nov 2026 with SIP date changing (same sources as every rule); the "Change amount/date" screen follows it: a new date always starts from the next cycle, so the upcoming instalment stays on its old date and the new date starts in the month after it. No full evaluation was re-run for R12 (PM decision); see eval/EVIDENCE_LOG.md for the spot checks. The "Not satisfied with returns" answer on the cancel reasons screen shows the first sentence of R11 word for word (shortened in fix 4, 8 Nov 2026).
 
 Source for every rule: label "SIP basics: AMFI investor education", url `https://www.amfiindia.com/investor-corner`; and "Groww Help Centre", url `https://groww.in/help`.
 
@@ -48,7 +48,7 @@ Source for every rule: label "SIP basics: AMFI investor education", url `https:/
    - type "answer" and check passed: the answer, plus "Source: [rule titles]" and "Information only, not investment advice".
    - type "refuse_advice": "I can't recommend funds or tell you what to do with your money. I can explain how skip, pause, lower and cancel work for this SIP." plus the suggested questions.
    - type "out_of_scope": "I can only help with how this SIP and its options work." plus the suggested questions.
-   - Suggested questions depend on where GR-1 was opened (added 7 Nov 2026): from the YOUR SIP card on the redeem sheet: "If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"; from the "How SIP returns work" answer: "Why are my SIP returns low?", "Does stopping my SIP change my returns?"; anywhere else: G1, G2, G3.
+   - Suggested questions depend on where GR-1 was opened (added 7 Nov 2026): from the YOUR SIP card on the redeem sheet: "If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"; anywhere else: G1, G2, G3.
    - check failed, or Groq error or timeout (8 seconds): fallback. Show the text of the most relevant rule (match the question to rule titles by keywords; default R1), labelled "Here's the official explanation", with the source link. Never show the failed answer.
 
 4. Log every request on the server (question, type, passed or failed, reason) to the console, for the evaluation page. Questions asked from "Compare your options" are marked `compare: true`.
