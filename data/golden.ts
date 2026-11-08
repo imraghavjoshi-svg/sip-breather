@@ -91,6 +91,6 @@ export const GOLDEN_SET_VERSION = "v3";
 export const SUGGESTED_QUESTIONS: Record<"redeem" | "returns" | "compare" | "other", string[]> = {
   redeem: ["If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"],
   returns: ["Why are my SIP returns low?", "Does stopping my SIP change my returns?"],
-  compare: ["Explain the difference between pausing and lowering", "What happens to my goal if I skip?"],
+  compare: ["Explain the difference between pausing and lowering", "What happens to my invested money if I cancel?"],
   other: [GOLDEN[0].question, GOLDEN[1].question, GOLDEN[2].question],
 };

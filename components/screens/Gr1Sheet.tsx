@@ -5,11 +5,14 @@
 // from (redeem sheet, returns answer, anywhere else), the chat, and the input.
 // Under every answer: "Based on: <rule title>", the Sources line, and
 // "Information only, not investment advice."
+// Long answers (3+ sentences) are shown as a list of blocks with the option
+// word in bold (lib/answerBlocks.ts): layout only, the words never change.
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { CornerDownRight, LoaderCircle, SendHorizontal, SquarePen, X } from "lucide-react";
 import { getRule, SOURCES } from "@/data/rules";
 import { SUGGESTED_QUESTIONS } from "@/data/golden";
+import { answerBlocks } from "@/lib/answerBlocks";
 import { askGr1 } from "@/lib/askClient";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
@@ -241,6 +244,7 @@ function AssistantMessage({
 }) {
   const titles = message.ruleIds.map((id) => getRule(id).title);
   const showRules = message.status !== "refused" && titles.length > 0;
+  const blocks = message.notice ? null : answerBlocks(message.text);
 
   return (
     <div>
@@ -254,11 +258,23 @@ function AssistantMessage({
           {message.compareFallback ? COMPARE_FALLBACK_LABEL : FALLBACK_LABEL}
         </p>
       )}
-      <p
-        className={message.notice ? "rounded-xl bg-line-soft px-4 py-3 text-[14px] leading-relaxed text-ink-2" : "text-[15px] leading-relaxed text-ink"}
-      >
-        {message.text}
-      </p>
+      {blocks ? (
+        <ul className="divide-y divide-line">
+          {blocks.map((b, i) => (
+            <li key={i} className="py-[5px] text-[15px] leading-relaxed text-ink first:pt-0 last:pb-0">
+              {b.lead}
+              {b.bold && <b className="font-semibold">{b.bold}</b>}
+              {b.rest}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p
+          className={message.notice ? "rounded-xl bg-line-soft px-4 py-3 text-[14px] leading-relaxed text-ink-2" : "text-[15px] leading-relaxed text-ink"}
+        >
+          {message.text}
+        </p>
+      )}
 
       {message.status === "refused" && !message.notice && <SuggestedQuestions questions={questions} onAsk={onAsk} disabled={disabled} className="mt-2" />}
 

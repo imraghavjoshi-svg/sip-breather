@@ -91,7 +91,7 @@ Header on the main tabs: logo icon, "Mutual Funds", search, GR-1 swirl icon (ope
 ### GR-1 (NEW)
 16. **GR-1 assistant** bottom sheet, classic Groww style with a green "New" tag: chip "YOUR SIP", suggested questions, chat, input "Ask GR-1 about your SIP". Under every AI answer: "Based on: [rule title]", "Sources: AMFI investor education · Groww Help Centre" (links), "Information only, not investment advice". Suggested questions depend on where it was opened:
     - from the YOUR SIP card: "If I withdraw, does my SIP stop?", "What happens if I skip this month?", "Will I be charged if a payment fails?"
-    - from "Explain this" on Compare: "Explain the difference between pausing and lowering", "What happens to my goal if I skip?"
+    - from "Explain this" on Compare: "Explain the difference between pausing and lowering", "What happens to my invested money if I cancel?"
     - anywhere else (header swirl, Need help, Pause): "What happens if I skip this month?", "Does cancelling touch my invested money?", "Will I be charged if a payment fails?"
     Works as described in ai_rules.md (safety check, sources, fallback, "Simulate AI failure").
 
