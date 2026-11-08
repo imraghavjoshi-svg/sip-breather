@@ -9,6 +9,7 @@ import { getSip } from "@/data/sips";
 import { getHolding } from "@/data/holdings";
 import { useDemo } from "@/lib/demoState";
 import { formatRupees } from "@/lib/sip";
+import { SipFundSquare } from "../phone/parts";
 import { Sheet } from "../phone/Sheet";
 
 export default function FundSheet() {
@@ -19,9 +20,12 @@ export default function FundSheet() {
   return (
     <Sheet label={sip.fundName} onDismiss={() => dispatch({ type: "back" })}>
       <div className="flex items-start justify-between gap-4 pb-4">
-        <div className="min-w-0">
-          <p className="text-[15px] font-medium leading-snug text-ink">{sip.fundName}</p>
-          <p className="mt-2.5 text-[12px] text-ink-2">SIP</p>
+        <div className="flex min-w-0 items-start gap-3.5">
+          <SipFundSquare sip={sip} size={30} />
+          <div className="min-w-0">
+            <p className="text-[15px] font-medium leading-snug text-ink">{sip.fundName}</p>
+            <p className="mt-2.5 text-[12px] text-ink-2">SIP</p>
+          </div>
         </div>
         <div className="flex shrink-0 items-center gap-3 pt-1">
           <ChevronRight size={17} className="text-ink-2" aria-hidden />

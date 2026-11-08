@@ -114,6 +114,8 @@ export type DemoAction =
   | { type: "startRedeem" }
   /** "Withdraw money, keep SIP": this SIP's fund, straight to its Redeem amount screen. */
   | { type: "withdrawKeepSip" }
+  /** "Need longer? Pause …" on the Skip sheet: closes it and opens Pause for the same SIP. */
+  | { type: "skipToPause" }
   | { type: "go"; screen: Screen }
   | { type: "back" }
   | { type: "jumpToStep"; step: StepTab }
@@ -181,7 +183,8 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, stack: [...base, "redeemAmount"], redeemInput: "" };
     }
     case "withdrawKeepSip":
-      // Opened over the withdraw answer, so Back returns to that sheet. Never
+      // Opened over the withdraw answer or SIP details ("Need money? Withdraw from this fund"),
+      // so Back returns there. Never
       // goes through the Dashboard or the fund sheet; same fund as the SIP.
       return {
         ...state,
@@ -189,6 +192,11 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         redeemInput: "",
         gr1Open: false,
       };
+    case "skipToPause": {
+      // The Skip sheet closes behind Pause, so Back returns to where Skip was opened.
+      const base = currentScreen(state) === "skipConfirm" ? state.stack.slice(0, -1) : state.stack;
+      return { ...state, stack: [...base, "pause"], draft: { ...state.draft, pauseMonths: 1 } };
+    }
     case "go":
       return { ...state, stack: [...state.stack, action.screen] };
     case "back":

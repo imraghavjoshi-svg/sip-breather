@@ -11,17 +11,17 @@ import { useDemo } from "@/lib/demoState";
 import { formatDayMonth, ordinal } from "@/lib/dates";
 import { formatRupees, sipView, type SipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Disclaimer, FundSquare } from "../phone/parts";
+import { Disclaimer, FundSquare, SipFundSquare } from "../phone/parts";
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 /** The sample SIP the user cancelled before this demo (always shown). */
-const EARLIER_CANCELLED = { name: "Sample Index Fund Direct Growth", amount: 300, cancelledOn: "24 Sep" };
+const EARLIER_CANCELLED = { name: "Sample Index Fund Direct Growth", amount: 300, cancelledOn: "24 Sep", colour: "#D9922B" };
 
 export default function SipsTab() {
   const { state, dispatch } = useDemo();
   const today = useToday();
-  const views = SIPS.map((s, i) => ({ view: sipView(s, state.decision, today), index: i }));
+  const views = SIPS.map((s) => ({ view: sipView(s, state.decision, today) }));
   const active = views
     .filter(({ view }) => view.status !== "cancelled")
     .sort((a, b) => a.view.nextDate!.getTime() - b.view.nextDate!.getTime());
@@ -44,11 +44,10 @@ export default function SipsTab() {
       </div>
 
       <ul className="mt-3">
-        {active.map(({ view, index }, i) => (
+        {active.map(({ view }, i) => (
           <li key={view.sip.id}>
             <ActiveRow
               view={view}
-              index={index}
               divider={i < active.length - 1}
               onOpen={() => dispatch({ type: "openSip", sipId: view.sip.id })}
             />
@@ -60,13 +59,13 @@ export default function SipsTab() {
         SIPs cancelled by you ({cancelledNow.length + 1})
       </h2>
       <ul className="mt-3 flex flex-col gap-4">
-        {cancelledNow.map(({ view, index }) => (
+        {cancelledNow.map(({ view }) => (
           <li key={view.sip.id}>
             <CancelledRow
               name={view.sip.fundName}
               amount={view.monthlyAmount}
               cancelledOn={formatDayMonth(today)}
-              index={index}
+              colour={view.sip.iconColour}
               onOpen={() => dispatch({ type: "openSip", sipId: view.sip.id })}
             />
           </li>
@@ -76,7 +75,7 @@ export default function SipsTab() {
             name={EARLIER_CANCELLED.name}
             amount={EARLIER_CANCELLED.amount}
             cancelledOn={EARLIER_CANCELLED.cancelledOn}
-            index={4}
+            colour={EARLIER_CANCELLED.colour}
           />
         </li>
       </ul>
@@ -86,12 +85,12 @@ export default function SipsTab() {
   );
 }
 
-function ActiveRow({ view, index, divider, onOpen }: { view: SipView; index: number; divider: boolean; onOpen: () => void }) {
+function ActiveRow({ view, divider, onOpen }: { view: SipView; divider: boolean; onOpen: () => void }) {
   const date = view.nextDate!;
   return (
     <button type="button" onClick={onOpen} className="flex w-full items-start gap-3.5 pl-4 text-left hover:bg-[#fafafa]">
       <span className="pt-4">
-        <FundSquare index={index} size={30} />
+        <SipFundSquare sip={view.sip} size={30} />
       </span>
       <span className={`flex min-w-0 flex-1 items-start gap-3 py-4 pr-4 ${divider ? "border-b border-line-soft" : ""}`}>
         <span className="min-w-0 flex-1">
@@ -121,18 +120,18 @@ function CancelledRow({
   name,
   amount,
   cancelledOn,
-  index,
+  colour,
   onOpen,
 }: {
   name: string;
   amount: number;
   cancelledOn: string;
-  index: number;
+  colour: string;
   onOpen?: () => void;
 }) {
   return (
     <div className="flex items-center gap-3 px-4">
-      <FundSquare index={index} size={30} />
+      <FundSquare colour={colour} size={30} />
       <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
         <span className="block truncate text-[15px] text-ink">{name}</span>
         <span className="mt-1 block text-[13px] text-ink-2">

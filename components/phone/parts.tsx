@@ -6,7 +6,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { ArrowLeft, ChevronLeft, Search } from "lucide-react";
 import { useDevice } from "@/lib/device";
-import type { HomeTab } from "@/lib/types";
+import type { HomeTab, Sip } from "@/lib/types";
 
 // Accent colours live in app/globals.css (bg-accent, text-accent-text, ...).
 export const ACCENT = "#00D09C";
@@ -177,9 +177,12 @@ export function ScreenHeader({
   subtitle,
   onBack,
   right,
+  icon,
   large = false,
 }: {
   title?: string;
+  /** Shown just before the title (e.g. the fund's "S" square). */
+  icon?: ReactNode;
   subtitle?: ReactNode;
   onBack: () => void;
   right?: ReactNode;
@@ -198,6 +201,7 @@ export function ScreenHeader({
         >
           <BackIcon size={device.backStyle === "chevron" ? 28 : 24} strokeWidth={2} />
         </button>
+        {icon && <span className="mr-1.5">{icon}</span>}
         <div className="min-w-0 flex-1">
           {title && (
             <h1 className={`truncate font-medium text-ink ${large ? "text-[18px]" : "text-[16px]"}`}>{title}</h1>
@@ -231,19 +235,34 @@ export function NewTag({ className = "" }: { className?: string }) {
   );
 }
 
-const SQUARE_COLOURS = ["#3F6FD8", "#E0563B", "#2E9E83", "#8A5CD0", "#D9922B", "#3B8FC2", "#C2477A"];
+/**
+ * Colours for made-up funds that are not our two SIPs (Explore, the earlier
+ * cancelled SIP). They never use our SIPs' colours (data/sips.ts), so a
+ * different fund never looks like one of ours.
+ */
+const OTHER_COLOURS = ["#2E9E83", "#8A5CD0", "#D9922B", "#3B8FC2", "#C2477A"];
 
-/** Plain coloured "S" square used instead of real fund logos. */
-export function FundSquare({ index = 0, size = 30 }: { index?: number; size?: number }) {
+/** Plain coloured "S" square used instead of real fund logos. Pass `colour`, or `index` for made-up funds. */
+export function FundSquare({ index = 0, colour, size = 30 }: { index?: number; colour?: string; size?: number }) {
   return (
     <span
       className="flex shrink-0 items-center justify-center rounded-md font-semibold text-white"
-      style={{ width: size, height: size, background: SQUARE_COLOURS[index % SQUARE_COLOURS.length], fontSize: size * 0.5 }}
+      style={{
+        width: size,
+        height: size,
+        background: colour ?? OTHER_COLOURS[index % OTHER_COLOURS.length],
+        fontSize: size * 0.5,
+      }}
       aria-hidden
     >
       S
     </span>
   );
+}
+
+/** The "S" square of one of our sample SIP funds, in its colour from the seed data. */
+export function SipFundSquare({ sip, size = 30 }: { sip: Sip; size?: number }) {
+  return <FundSquare colour={sip.iconColour} size={size} />
 }
 
 /** Text with a dotted underline, as on classic Groww's small links ("Cancel SIP", "Skip"). */

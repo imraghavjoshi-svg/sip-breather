@@ -9,7 +9,7 @@ import { SIPS } from "@/data/sips";
 import { FUND_XIRR, HOLDINGS, PORTFOLIO_XIRR } from "@/data/holdings";
 import { useDemo } from "@/lib/demoState";
 import { formatRupees, invested } from "@/lib/sip";
-import { Disclaimer } from "../phone/parts";
+import { Disclaimer, SipFundSquare } from "../phone/parts";
 
 function pct(part: number, whole: number): string {
   return `${((part / whole) * 100).toFixed(2)}%`;
@@ -81,9 +81,12 @@ export default function DashboardTab() {
               onClick={() => dispatch({ type: "openFund", sipId: sip.id })}
               className="flex w-full items-start justify-between gap-4 border-b border-line-soft px-4 py-4 text-left hover:bg-[#fafafa]"
             >
-              <span className="min-w-0">
-                <span className="block text-[15px] leading-snug text-ink">{sip.fundName}</span>
-                <span className="mt-2.5 block text-[12px] text-ink-2">SIP</span>
+              <span className="flex min-w-0 items-start gap-3.5">
+                <SipFundSquare sip={sip} size={30} />
+                <span className="min-w-0">
+                  <span className="block text-[15px] leading-snug text-ink">{sip.fundName}</span>
+                  <span className="mt-2.5 block text-[12px] text-ink-2">SIP</span>
+                </span>
               </span>
               <span className="shrink-0 pt-2 text-[15px] text-ink">{FUND_XIRR[sip.id]}</span>
             </button>

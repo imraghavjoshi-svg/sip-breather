@@ -20,6 +20,8 @@ export type FinalChoice = "redeem_only" | "keep" | "skip" | "pause" | "lower" | 
 export type Sip = {
   id: string;
   fundName: string; // always a "Sample …" name
+  /** Colour of this fund's "S" square. Every screen reads it, so the same fund always looks the same. */
+  iconColour: string;
   monthlyAmount: number; // ₹
   instalmentDay: number; // day of month
   instalmentsDone: number;

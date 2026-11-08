@@ -21,7 +21,7 @@ import {
 } from "@/lib/dates";
 import { formatRupees, invested } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Disclaimer, FundSquare } from "../phone/parts";
+import { Disclaimer, SipFundSquare } from "../phone/parts";
 import { PrimaryButton } from "../phone/Sheet";
 import { InfoRow } from "../phone/InfoRow";
 
@@ -121,7 +121,7 @@ export default function DoneScreen() {
 
         <div className="mt-8 rounded-xl border border-line px-[15px]">
           <div className="flex items-center gap-3 border-b border-line-soft py-3">
-            <FundSquare index={sip.id === "sip_flexi" ? 0 : 1} size={30} />
+            <SipFundSquare sip={sip} size={30} />
             <p className="min-w-0 text-[14px] leading-snug text-ink">{sip.fundName}</p>
           </div>
           <InfoRow Icon={Wallet}>Your {investedText} stays invested.</InfoRow>

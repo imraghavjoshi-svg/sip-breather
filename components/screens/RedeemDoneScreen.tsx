@@ -12,7 +12,7 @@ import { expectedTransferDate, formatDayMonth, formatFullDate } from "@/lib/date
 import { BANK_LABEL, formatRupees2 } from "@/lib/redeem";
 import { sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Disclaimer } from "../phone/parts";
+import { Disclaimer, SipFundSquare } from "../phone/parts";
 import { PrimaryButton } from "../phone/Sheet";
 
 export default function RedeemDoneScreen() {
@@ -47,8 +47,11 @@ export default function RedeemDoneScreen() {
         </p>
 
         <dl className="mt-8 rounded-xl border border-line px-[15px]">
-          <div className="flex items-start justify-between gap-4 border-b border-line-soft py-3">
-            <dt className="text-[14px] leading-snug text-ink">{sip.fundName}</dt>
+          <div className="flex items-center justify-between gap-4 border-b border-line-soft py-3">
+            <dt className="flex items-center gap-3 text-[14px] leading-snug text-ink">
+              <SipFundSquare sip={sip} size={30} />
+              {sip.fundName}
+            </dt>
             <dd className="shrink-0 text-[14px] font-medium text-ink">{formatRupees2(amount)}</dd>
           </div>
           <div className="flex items-center justify-between py-3">

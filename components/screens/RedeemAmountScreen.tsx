@@ -13,7 +13,7 @@ import { useDevice } from "@/lib/device";
 import { expectedTransferDate, formatDayMonthYear } from "@/lib/dates";
 import { availableToRedeem, BANK_LABEL, checkRedeemAmount, pressRedeemKey } from "@/lib/redeem";
 import { useToday } from "@/lib/today";
-import { Disclaimer, ScreenHeader } from "../phone/parts";
+import { Disclaimer, ScreenHeader, SipFundSquare } from "../phone/parts";
 import { Keypad } from "../phone/Keypad";
 import { PrimaryButton } from "../phone/Sheet";
 
@@ -54,6 +54,7 @@ export default function RedeemAmountScreen() {
     <div className="flex h-full flex-col bg-white">
       <ScreenHeader
         title={`Redeem ${sip.fundName}`}
+        icon={<SipFundSquare sip={sip} size={28} />}
         subtitle={
           <span className="flex items-center gap-1.5">
             ₹{available.toLocaleString("en-IN")} available <Info size={13} aria-hidden />

@@ -13,7 +13,7 @@ import { applicableNavDate, formatDayMonth, formatDayMonth2 } from "@/lib/dates"
 import { BANK_LABEL, formatRupees2, formatSignedRupees2, shortTermGain } from "@/lib/redeem";
 import { formatRupees, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Gr1Swirl, NewTag } from "../phone/parts";
+import { Gr1Swirl, NewTag, SipFundSquare } from "../phone/parts";
 import { PrimaryButton, Sheet } from "../phone/Sheet";
 
 export default function RedeemSheet() {
@@ -26,6 +26,10 @@ export default function RedeemSheet() {
 
   return (
     <Sheet label="You are redeeming" onDismiss={() => dispatch({ type: "back" })}>
+      <p className="mb-3 flex items-center gap-2.5 text-[14px] text-ink">
+        <SipFundSquare sip={sip} size={24} />
+        <span className="truncate">{sip.fundName}</span>
+      </p>
       <p className="text-[15px] text-ink-2">You are redeeming</p>
       <p className="mt-1 text-[28px] font-medium text-ink">{formatRupees2(amount)}</p>
 

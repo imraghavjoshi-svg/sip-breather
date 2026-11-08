@@ -28,7 +28,8 @@ import {
   TrendingUp,
   type LucideProps,
 } from "lucide-react";
-import { Disclaimer, FundSquare } from "../phone/parts";
+import { getSip } from "@/data/sips";
+import { Disclaimer, FundSquare, SipFundSquare } from "../phone/parts";
 
 const POPULAR = [
   { name: "Sample Silver ETF FoF Direct-Growth", ret: "+36.22%" },
@@ -56,11 +57,12 @@ const TOOLS: { label: string; Icon: ComponentType<LucideProps>; badge?: number }
 
 const CHIPS = ["Index only", "Flexi Cap", "Sectoral", "Large Cap"];
 
-const ALL_FUNDS = [
+/** `sipId`: this row is one of our two SIP funds, so it uses that fund's square colour. */
+const ALL_FUNDS: { name: string; category: string; ret: string; sipId?: string }[] = [
   { name: "Sample Small Cap Fund", category: "Equity Small Cap", ret: "+22.90%" },
-  { name: "Sample Flexi Cap Fund", category: "Equity Flexi Cap", ret: "+13.40%" },
+  { name: "Sample Flexi Cap Fund", category: "Equity Flexi Cap", ret: "+13.40%", sipId: "sip_flexi" },
   { name: "Sample Silver ETF FoF Direct-Growth", category: "Commodities Silver", ret: "+36.22%" },
-  { name: "Sample Midcap Fund", category: "Equity Mid Cap", ret: "+18.74%" },
+  { name: "Sample Midcap Fund", category: "Equity Mid Cap", ret: "+18.74%", sipId: "sip_mid" },
   { name: "Sample Flexi Cap Direct Plan-Growth", category: "Equity Flexi Cap", ret: "+17.31%" },
   { name: "Sample Defence Fund", category: "Equity Thematic", ret: "+35.52%" },
   { name: "Sample Mid Cap Fund", category: "Equity Mid Cap", ret: "+23.72%" },
@@ -98,7 +100,7 @@ export default function ExploreTab() {
       {/* Recently viewed */}
       <SectionTitle>Recently viewed</SectionTitle>
       <div className="mx-4 mt-3.5 flex h-[52px] w-fit min-w-[183px] items-center gap-2.5 rounded-xl border border-line px-3.5">
-        <FundSquare index={1} size={22} />
+        <SipFundSquare sip={getSip("sip_mid")} size={22} />
         <span className="truncate text-[14px] text-ink">Sample Midcap Fund</span>
       </div>
 
@@ -109,7 +111,7 @@ export default function ExploreTab() {
       <div className="mx-4 mt-4 grid grid-cols-2 gap-[13px]">
         {POPULAR.map((f, i) => (
           <div key={f.name} className="flex h-[147px] flex-col rounded-xl border border-line px-[15px] pb-3.5 pt-[15px]">
-            <FundSquare index={i + 2} size={30} />
+            <FundSquare index={i} size={30} />
             <p className="mt-3 line-clamp-2 text-[15px] leading-snug text-ink">{f.name}</p>
             <div className="mt-auto flex items-baseline justify-between">
               <span className="text-[16px] font-medium text-gain">{f.ret}</span>
@@ -182,7 +184,7 @@ export default function ExploreTab() {
       <ul className="mt-2">
         {ALL_FUNDS.map((f, i) => (
           <li key={f.name} className="flex items-center gap-3.5 pl-4">
-            <FundSquare index={i} size={30} />
+            {f.sipId ? <SipFundSquare sip={getSip(f.sipId)} size={30} /> : <FundSquare index={i} size={30} />}
             <div className="flex min-w-0 flex-1 items-center justify-between gap-3 border-b border-line-soft py-3 pr-4">
               <div className="min-w-0">
                 <p className="truncate text-[15px] text-ink">{f.name}</p>

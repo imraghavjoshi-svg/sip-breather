@@ -6,6 +6,7 @@ export const SIPS: Sip[] = [
   {
     id: "sip_flexi",
     fundName: "Sample Flexi Cap Fund Direct Growth",
+    iconColour: "#3F6FD8", // blue
     monthlyAmount: 500,
     instalmentDay: 5,
     instalmentsDone: 6,
@@ -18,6 +19,7 @@ export const SIPS: Sip[] = [
   {
     id: "sip_mid",
     fundName: "Sample Midcap Fund Direct Growth",
+    iconColour: "#E0563B", // orange-red
     monthlyAmount: 1000,
     instalmentDay: 10,
     instalmentsDone: 4,

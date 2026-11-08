@@ -3,19 +3,19 @@
 // SIP details: copy of classic Groww's screen (classic_sip_details).
 // Working: "Cancel SIP" (top right, opens the reasons screen), "Change amount/date" (our lower-amount
 // screen), "Skip" on the Upcoming row (small confirm, then "Skipped" on that
-// row), "Details" (opens and closes), and "Need help" (NEW: opens GR-1).
+// row), "Need money? Withdraw from this fund" (NEW: Redeem amount for this fund), "Details" (opens and closes), and "Need help" (NEW: opens GR-1).
 // "Add step-up" and the fund name link are shown for realism only.
 // No returns, NAV or units on this screen.
 
 import { useState } from "react";
-import { CalendarDays, ChartBar, ChartNoAxesColumn, ChevronDown, ChevronRight, CircleHelp, Pencil } from "lucide-react";
+import { CalendarDays, ChartBar, ChartNoAxesColumn, ChevronDown, ChevronRight, CircleHelp, Pencil, Wallet } from "lucide-react";
 import { getSip } from "@/data/sips";
 import { useDemo } from "@/lib/demoState";
 import { useDevice } from "@/lib/device";
 import { formatDayMonth, formatDayMonthYear, nextInstalment, ordinal, pastInstalments } from "@/lib/dates";
 import { formatRupees, goalProgress, sipView } from "@/lib/sip";
 import { useToday } from "@/lib/today";
-import { Disclaimer, DottedLink, NewTag, ScreenHeader } from "../phone/parts";
+import { Disclaimer, DottedLink, NewTag, ScreenHeader, SipFundSquare } from "../phone/parts";
 
 export default function SipDetails() {
   const { state, dispatch } = useDemo();
@@ -50,6 +50,9 @@ export default function SipDetails() {
             {cancelled ? "Cancelled" : `Monthly SIP on ${ordinal(view.instalmentDay)}`}
           </p>
           <p className="mt-4 flex items-center gap-1.5 text-[15px] text-ink-2">
+            <span className="mr-1">
+              <SipFundSquare sip={sip} size={24} />
+            </span>
             <span className="truncate">{sip.fundName}</span>
             <ChevronRight size={16} className="shrink-0" aria-hidden />
           </p>
@@ -131,6 +134,17 @@ export default function SipDetails() {
               <ChevronRight size={17} className="shrink-0 text-ink-2" aria-hidden />
             </button>
           )}
+          {/* NEW: straight to Redeem amount for this fund. Shown even when cancelled: the money stays invested. */}
+          <button
+            type="button"
+            onClick={() => dispatch({ type: "withdrawKeepSip" })}
+            className={`${cancelled ? "mt-4" : "mt-3"} flex w-full items-center gap-3 rounded-lg border border-line px-3.5 py-3 text-left hover:bg-[#fafafa]`}
+          >
+            <Wallet size={18} className="shrink-0 text-ink" aria-hidden />
+            <span className="flex-1 text-[15px] text-ink">Need money? Withdraw from this fund</span>
+            <NewTag />
+            <ChevronRight size={17} className="shrink-0 text-ink-2" aria-hidden />
+          </button>
         </section>
 
         {/* Details (opens and closes) */}

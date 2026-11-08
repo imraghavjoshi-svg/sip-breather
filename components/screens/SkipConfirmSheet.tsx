@@ -36,6 +36,14 @@ export default function SkipConfirmSheet({ stacked = false }: { stacked?: boolea
         </InfoRow>
       </div>
 
+      <button
+        type="button"
+        onClick={() => dispatch({ type: "skipToPause" })}
+        className="mt-3 text-left text-[14px] font-medium text-accent-text hover:underline"
+      >
+        Need longer? Pause for 1 to 3 months instead
+      </button>
+
       <div className="mt-5 flex flex-col gap-1">
         <PrimaryButton onClick={() => dispatch({ type: "confirmSkip" })}>Skip instalment</PrimaryButton>
         <TextButton onClick={() => dispatch({ type: "back" })}>Go back</TextButton>
