@@ -85,6 +85,8 @@ export type DemoState = {
   compare: CompareDraft;
   /** Compare was opened in this run (for the test log; cleared when a row is saved). */
   compareOpened: boolean;
+  /** Dashboard view toggles: eye icon (hide ₹ amounts) and "<> XIRR" (XIRR % or returns in ₹). */
+  dashboard: { amountsHidden: boolean; showReturns: boolean };
 };
 
 export const DEFAULT_SIP_ID = "sip_flexi";
@@ -105,6 +107,7 @@ export const INITIAL_STATE: DemoState = {
   chat: [],
   compare: DEFAULT_COMPARE_DRAFT,
   compareOpened: false,
+  dashboard: { amountsHidden: false, showReturns: false },
 };
 
 export type DemoAction =
@@ -144,6 +147,10 @@ export type DemoAction =
   | { type: "closeGr1" }
   | { type: "addChat"; message: ChatMessage }
   | { type: "newChat" }
+  /** Dashboard eye icon: hide or show ₹ amounts. */
+  | { type: "toggleAmounts" }
+  /** Dashboard "<> XIRR": switch fund rows between XIRR % and returns in ₹. */
+  | { type: "toggleReturnsView" }
   | { type: "reset" };
 
 /** Where each toolbar step tab jumps to (always with Sample Flexi Cap). */
@@ -305,6 +312,10 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
       return { ...state, chat: [...state.chat, action.message] };
     case "newChat":
       return { ...state, chat: [] };
+    case "toggleAmounts":
+      return { ...state, dashboard: { ...state.dashboard, amountsHidden: !state.dashboard.amountsHidden } };
+    case "toggleReturnsView":
+      return { ...state, dashboard: { ...state.dashboard, showReturns: !state.dashboard.showReturns } };
     case "reset":
       return INITIAL_STATE;
   }
